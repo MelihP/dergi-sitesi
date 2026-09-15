@@ -1,0 +1,54 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}Dergi{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'articles/css/style.css' %}">
+</head>
+<body>
+    <header class="site-header">
+        <a class="logo" href="{% url 'articles:home' %}">Dergi.</a>
+
+        <nav aria-label="Ana menü">
+            <a href="{% url 'articles:home' %}">Ana Sayfa</a>
+            <a href="{% url 'articles:home' %}?bolum=dosya">Dosya</a>
+            <a href="{% url 'articles:home' %}?bolum=ceviri">Çeviri</a>
+            <a href="{% url 'articles:home' %}?bolum=tartisma">Tartışma</a>
+            <a href="{% url 'articles:home' %}#kavramlar">Kavramlar</a>
+            <a href="{% url 'articles:archive' %}">Tüm Yazılar</a>
+        </nav>
+
+
+    <form
+    class="header-search"
+    method="get"
+    action="{% url 'articles:archive' %}"
+    role="search"
+    aria-label="Sitede ara">
+
+    <input
+        type="search"
+        name="q"
+        maxlength="200"
+        placeholder="Yazı veya yazar ara…"
+        aria-label="Arama kelimesi"
+        value="{{ request.GET.q|default:'' }}">
+
+    <button type="submit">Ara</button>
+    </form>
+    </header>
+
+    <main class="container">
+        {% block content %}{% endblock %}
+    </main>
+    <footer class="site-footer">
+        Dergi. — Düşünce, kültür ve tartışma.
+    </footer>
+
+    {% include "articles/social_panel.html" %}
+
+    <script src="{% static 'articles/js/main.js' %}" defer></script>
+</body>
+</html>

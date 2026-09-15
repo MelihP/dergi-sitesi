@@ -1,0 +1,47 @@
+.dergi-editor {
+    width: min(100%, 960px);
+    min-width: 0;
+}
+
+.dergi-editor .ql-toolbar,
+.dergi-editor .ql-container {
+    background: #ffffff;
+    color: #222222;
+}
+
+.dergi-editor .ql-toolbar {
+    border-radius: 8px 8px 0 0;
+}
+
+.dergi-editor .ql-container {
+    border-radius: 0 0 8px 8px;
+}
+
+.dergi-editor .ql-editor {
+    min-height: 420px;
+    font-family: Georgia, serif;
+    font-size: 18px;
+    line-height: 1.8;
+}
+
+.dergi-editor .ql-editor h2 {
+    margin: 24px 0 12px;
+}
+
+.dergi-editor .ql-editor h3 {
+    margin: 20px 0 10px;
+}
+
+.dergi-editor .editor-message {
+    margin-top: 10px;
+    font-size: 13px;
+    white-space: normal;
+}
+
+.dergi-editor textarea[hidden] {
+    display: none !important;
+}
+
+.form-row.field-content .flex-container {
+    flex-wrap: wrap;
+}

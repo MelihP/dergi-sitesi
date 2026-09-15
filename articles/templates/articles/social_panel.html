@@ -1,0 +1,107 @@
+<button
+    type="button"
+    class="social-launcher"
+    id="social-launcher"
+    aria-controls="social-panel"
+    aria-expanded="false">
+    Sosyal Medya
+</button>
+
+<section
+    class="social-panel"
+    id="social-panel"
+    aria-labelledby="social-panel-title"
+    hidden>
+
+    <header class="social-panel-header">
+        <div>
+            <span class="eyebrow">Dergi</span>
+            <h2 id="social-panel-title">Son İçerikler</h2>
+        </div>
+
+        <button
+            type="button"
+            class="social-close"
+            id="social-close"
+            aria-label="Sosyal medya panelini kapat">
+            ×
+        </button>
+    </header>
+
+    <div
+        class="social-tabs"
+        role="tablist"
+        aria-label="Sosyal medya platformları">
+
+        {% for group in social_groups %}
+            <button
+                type="button"
+                class="social-tab"
+                id="social-tab-{{ group.key }}"
+                role="tab"
+                aria-controls="social-feed-{{ group.key }}"
+                aria-selected="{% if forloop.first %}true{% else %}false{% endif %}"
+                tabindex="{% if forloop.first %}0{% else %}-1{% endif %}">
+                {{ group.label }}
+            </button>
+        {% endfor %}
+    </div>
+
+    <div class="social-panel-body">
+        {% for group in social_groups %}
+            <div
+                class="social-feed"
+                id="social-feed-{{ group.key }}"
+                role="tabpanel"
+                aria-labelledby="social-tab-{{ group.key }}"
+                tabindex="0"
+                {% if not forloop.first %}hidden{% endif %}>
+
+                {% for post in group.posts %}
+                    <article class="social-post">
+                        <a
+                            class="social-post-link"
+                            href="{{ post.url }}"
+                            target="_blank"
+                            rel="noopener noreferrer">
+
+                            {% if post.image %}
+                                <img
+                                    class="social-post-image"
+                                    src="{{ post.image.url }}"
+                                    alt=""
+                                    loading="lazy">
+                            {% endif %}
+
+                            <div class="social-post-content">
+                                <h3>{{ post.title }}</h3>
+
+                                {% if post.description %}
+                                    <p>
+                                        {{ post.description|truncatewords:28 }}
+                                    </p>
+                                {% endif %}
+
+                                <span class="social-post-action">
+                                    Gönderiyi aç ↗
+                                </span>
+                            </div>
+                        </a>
+                    </article>
+                {% empty %}
+                    <p class="social-empty">
+                        Henüz paylaşım eklenmedi.
+                    </p>
+                {% endfor %}
+
+                <a
+                    class="social-profile-link"
+                    href="{{ group.profile_url }}"
+                    target="_blank"
+                    rel="noopener noreferrer">
+                    {{ group.label }} hesabına git ↗
+                </a>
+            </div>
+        {% endfor %}
+    </div>
+</section>

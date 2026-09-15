@@ -1,0 +1,94 @@
+{% extends "articles/base.html" %}
+
+{% block title %}Tüm Yazılar | Dergi{% endblock %}
+
+{% block content %}
+    <section class="archive-page">
+        <header class="archive-title">
+            <span class="eyebrow">DERGİ ARŞİVİ</span>
+            <h1>Tüm Yazılar</h1>
+
+            <p class="muted">
+                Yazı, yazar veya konu ara.
+                Kategori ve yayın tarihine göre filtrele.
+            </p>
+        </header>
+
+        <form
+            method="get"
+            class="archive-filters"
+            role="search"
+            aria-label="Arşiv filtreleri">
+
+            {% if filter_form.non_field_errors %}
+                <div class="filter-errors">
+                    {{ filter_form.non_field_errors }}
+                </div>
+            {% endif %}
+
+            {% for field in filter_form %}
+                <div class="filter-field">
+                    {{ field.label_tag }}
+                    {{ field }}
+                    {{ field.errors }}
+                </div>
+            {% endfor %}
+
+            <div class="filter-actions">
+                <button type="submit">Filtrele</button>
+
+                <a href="{% url 'articles:archive' %}">
+                    Filtreleri temizle
+                </a>
+            </div>
+        </form>
+
+        {% if not filter_form.errors %}
+            <p class="archive-result-count">
+                {{ page_obj.paginator.count }} yazı bulundu.
+            </p>
+
+            <div class="article-grid">
+                {% for article in page_obj %}
+                    {% include "articles/_article_card.html" %}
+                {% empty %}
+                    <div class="archive-empty">
+                        <h2>Yazı bulunamadı.</h2>
+                        <p>
+                            Arama kelimesini veya filtreleri
+                            değiştirmeyi deneyebilirsin.
+                        </p>
+                    </div>
+                {% endfor %}
+            </div>
+
+            {% if page_obj.has_other_pages %}
+                <nav
+                    class="pagination"
+                    aria-label="Arşiv sayfaları">
+
+                    {% if page_obj.has_previous %}
+                        <a
+                            href="?{{ querystring }}&amp;sayfa={{ page_obj.previous_page_number }}"
+                            rel="prev">
+                            ← Önceki
+                        </a>
+                    {% endif %}
+
+                    <span aria-current="page">
+                        Sayfa {{ page_obj.number }}
+                        / {{ page_obj.paginator.num_pages }}
+                    </span>
+
+                    {% if page_obj.has_next %}
+                        <a
+                            href="?{{ querystring }}&amp;sayfa={{ page_obj.next_page_number }}"
+                            rel="next">
+                            Sonraki →
+                        </a>
+                    {% endif %}
+                </nav>
+            {% endif %}
+        {% endif %}
+    </section>
+{% endblock %}

@@ -1,0 +1,132 @@
+{% extends "articles/base.html" %}
+
+{% block content %}
+
+    {% if section_title %}
+        <div class="category-heading">
+            <span class="eyebrow">BÖLÜM</span>
+            <h1>{{ section_title }}</h1>
+        </div>
+    {% endif %}
+
+    {% if featured %}
+        <section class="featured-slider"
+                 data-slider
+                 aria-label="Öne çıkan yazılar"
+                 aria-roledescription="karusel">
+
+            {% for article in featured %}
+                <article class="hero slide"
+                         data-slide
+                         role="group"
+                         aria-label="{{ forloop.counter }} / {{ featured|length }}"
+                         {% if not forloop.first %}hidden{% endif %}>
+
+                    {% if article.cover %}
+                        <img class="hero-image"
+                             src="{{ article.cover.url }}"
+                             alt="">
+                    {% endif %}
+
+                    <div class="hero-content">
+                        <span class="eyebrow">
+                            {{ article.get_section_display }}
+                        </span>
+
+                        <h2>{{ article.title }}</h2>
+                        <p>{{ article.summary }}</p>
+
+                        <a class="read-link"
+                           href="{% url 'articles:detail' article.slug %}">
+                            Yazıyı oku →
+                        </a>
+                    </div>
+                </article>
+            {% endfor %}
+
+            {% if featured|length > 1 %}
+                <div class="slider-controls">
+                    <button type="button"
+                            data-prev
+                            aria-label="Önceki manşet">
+                        ←
+                    </button>
+
+                    <span data-counter
+                          aria-live="polite"
+                          aria-atomic="true">
+                        1 / {{ featured|length }}
+                    </span>
+
+                    <button type="button"
+                            data-next
+                            aria-label="Sonraki manşet">
+                        →
+                    </button>
+                </div>
+            {% endif %}
+        </section>
+    {% else %}
+        <section class="empty-state">
+            <span class="eyebrow">DERGİ</span>
+            <h1>Yeni fikirler burada buluşacak.</h1>
+            <p>Bu bölümde henüz yayımlanmış yazı bulunmuyor.</p>
+        </section>
+    {% endif %}
+
+    {% if articles %}
+        <section class="articles-section">
+            <div class="section-heading">
+                <span class="eyebrow">GÜNCEL</span>
+                <h2>Son Yazılar</h2>
+            </div>
+
+            <div class="article-grid">
+                {% for article in articles %}
+                    {% include "articles/_article_card.html" %}
+                {% endfor %}
+            </div>
+        </section>
+    {% endif %}
+
+    {% if archive_articles %}
+        <section class="articles-section archive-section">
+            <div class="section-heading">
+                <span class="eyebrow">YENİDEN OKUMAK</span>
+                <h2>Arşivden Seçmeler</h2>
+            </div>
+
+            <div class="article-grid">
+                {% for article in archive_articles %}
+                    {% include "articles/_article_card.html" %}
+                {% endfor %}
+            </div>
+        </section>
+    {% endif %}
+
+    {% if concepts %}
+        <section class="articles-section" id="kavramlar">
+            <div class="section-heading">
+                <span class="eyebrow">KAVRAM SETİ</span>
+                <h2>Kavramlar Sözlüğü</h2>
+            </div>
+
+            <div class="concept-grid">
+                {% for concept in concepts %}
+                    <article class="concept-card">
+                        <span class="concept-initial" aria-hidden="true">
+                            {{ concept.name|first }}
+                        </span>
+
+                        <h3>{{ concept.name }}</h3>
+
+                        <div class="concept-description">
+                            {{ concept.description|linebreaks }}
+                        </div>
+                    </article>
+                {% endfor %}
+            </div>
+        </section>
+    {% endif %}
+
+{% endblock %}

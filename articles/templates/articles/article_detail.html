@@ -1,0 +1,31 @@
+{% extends "articles/base.html" %}
+
+{% block title %}{{ article.title }} | Dergi{% endblock %}
+
+{% block content %}
+    <article class="reading">
+        <a class="back-link" href="{% url 'articles:home' %}">
+            ← Ana sayfaya dön
+        </a>
+
+        <header class="article-header">
+            <span class="eyebrow">{{ article.get_section_display }}</span>
+            <h1>{{ article.title }}</h1>
+            <p class="meta">{{ article.author_name }}</p>
+
+            {% if article.summary %}
+                <p class="article-summary">{{ article.summary }}</p>
+            {% endif %}
+        </header>
+
+        {% if article.cover %}
+            <img class="detail-cover"
+                 src="{{ article.cover.url }}"
+                 alt="{{ article.title }}">
+        {% endif %}
+
+        <div class="article-text">
+            {{ article.content|linebreaks }}
+        </div>
+    </article>
+{% endblock %}

@@ -1,0 +1,26 @@
+<article class="card">
+    <a class="card-link"
+       href="{% url 'articles:detail' article.slug %}">
+
+        {% if article.cover %}
+            <img class="card-image"
+                 src="{{ article.cover.url }}"
+                 alt=""
+                 loading="lazy">
+        {% else %}
+            <div class="cover-placeholder"></div>
+        {% endif %}
+
+        <div class="card-body">
+            <span class="eyebrow">
+                {{ article.get_section_display }}
+            </span>
+
+            <h3>{{ article.title }}</h3>
+
+            <p>{{ article.summary|truncatewords:24 }}</p>
+
+            <span class="meta">{{ article.author_name }}</span>
+        </div>
+    </a>
+</article>

@@ -1,0 +1,10 @@
+Django>=5.2,<5.3
+Pillow
+gunicorn
+whitenoise[brotli]
+dj-database-url
+psycopg[binary]
+cloudinary
+django-cloudinary-storage
+nh3
+beautifulsoup4
