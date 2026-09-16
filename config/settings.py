@@ -34,11 +34,17 @@ SECRET_KEY = os.environ.get(
 DEBUG = os.environ.get("DEBUG", "True").lower() == "true"
 
 ALLOWED_HOSTS = [
-    "127.0.0.1",
-    "localhost",
+    'denemedergi.com.tr',
+    'www.denemedergi.com.tr',
+    '.onrender.com',
+    'localhost',
+    '127.0.0.1',
 ]
 
-CSRF_TRUSTED_ORIGINS = []
+CSRF_TRUSTED_ORIGINS = [
+    'https://denemedergi.com.tr',
+    'https://www.denemedergi.com.tr',
+]
 
 render_hostname = os.environ.get("RENDER_EXTERNAL_HOSTNAME")
 
