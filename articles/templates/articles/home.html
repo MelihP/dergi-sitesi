@@ -12,57 +12,84 @@
     {% if featured %}
         <section class="featured-slider"
                  data-slider
+                 data-autoplay="6000"
                  aria-label="Öne çıkan yazılar"
                  aria-roledescription="karusel">
+            {% if not section_title %}
+                <h1 class="sr-only">Dergi manşetleri</h1>
+            {% endif %}
 
-            {% for article in featured %}
-                <article class="hero slide"
-                         data-slide
-                         role="group"
-                         aria-label="{{ forloop.counter }} / {{ featured|length }}"
-                         {% if not forloop.first %}hidden{% endif %}>
+            <div class="slider-track" aria-live="off">
+                {% for article in featured %}
+                    <article class="hero slide"
+                             data-slide
+                             role="group"
+                             aria-roledescription="slayt"
+                             aria-label="{{ forloop.counter }} / {{ featured|length }}"
+                             {% if not forloop.first %}hidden{% endif %}>
 
-                    {% if article.cover %}
-                        <img class="hero-image"
-                             src="{{ article.cover.url }}"
-                             alt="">
-                    {% endif %}
+                        {% if article.cover %}
+                            <img class="hero-image"
+                                 src="{{ article.cover.url }}"
+                                 alt="{{ article.title }}"
+                                 {% if forloop.first %}fetchpriority="high"{% else %}loading="lazy"{% endif %}>
+                        {% else %}
+                            <div class="hero-placeholder" aria-hidden="true"></div>
+                        {% endif %}
 
-                    <div class="hero-content">
-                        <span class="eyebrow">
-                            {{ article.get_section_display }}
-                        </span>
+                        <div class="hero-overlay" aria-hidden="true"></div>
 
-                        <h2>{{ article.title }}</h2>
-                        <p>{{ article.summary }}</p>
+                        <div class="hero-content">
+                            <span class="eyebrow">{{ article.get_section_display }}</span>
+                            <h2>{{ article.title }}</h2>
 
-                        <a class="read-link"
-                           href="{% url 'articles:detail' article.slug %}">
-                            Yazıyı oku →
-                        </a>
-                    </div>
-                </article>
-            {% endfor %}
+                            {% if article.summary %}
+                                <p>{{ article.summary|truncatechars:220 }}</p>
+                            {% endif %}
+
+                            <div class="hero-meta">
+                                <span>{{ article.author_name }}</span>
+                                {% if article.published_at %}
+                                    <time datetime="{{ article.published_at|date:'c' }}">
+                                        {{ article.published_at|date:"j F Y" }}
+                                    </time>
+                                {% endif %}
+                            </div>
+
+                            <a class="read-link"
+                               href="{% url 'articles:detail' article.slug %}">
+                                Yazıyı oku <span aria-hidden="true">→</span>
+                            </a>
+                        </div>
+                    </article>
+                {% endfor %}
+            </div>
 
             {% if featured|length > 1 %}
-                <div class="slider-controls">
-                    <button type="button"
-                            data-prev
-                            aria-label="Önceki manşet">
-                        ←
-                    </button>
+                <div class="slider-toolbar">
+                    <div class="slider-arrows">
+                        <button type="button" data-prev aria-label="Önceki manşet">←</button>
+                        <button type="button" data-next aria-label="Sonraki manşet">→</button>
+                    </div>
 
-                    <span data-counter
-                          aria-live="polite"
-                          aria-atomic="true">
-                        1 / {{ featured|length }}
-                    </span>
+                    <div class="slider-dots" aria-label="Manşet seçimi">
+                        {% for article in featured %}
+                            <button type="button"
+                                    data-dot
+                                    data-slide-to="{{ forloop.counter0 }}"
+                                    aria-label="{{ forloop.counter }}. manşete git"
+                                    aria-current="{% if forloop.first %}true{% else %}false{% endif %}"></button>
+                        {% endfor %}
+                    </div>
 
-                    <button type="button"
-                            data-next
-                            aria-label="Sonraki manşet">
-                        →
-                    </button>
+                    <div class="slider-status">
+                        <span data-counter aria-live="polite" aria-atomic="true">
+                            1 / {{ featured|length }}
+                        </span>
+                        <button type="button" data-pause aria-label="Otomatik geçişi durdur">
+                            <span data-pause-icon aria-hidden="true">Ⅱ</span>
+                        </button>
+                    </div>
                 </div>
             {% endif %}
         </section>
@@ -77,8 +104,11 @@
     {% if articles %}
         <section class="articles-section">
             <div class="section-heading">
-                <span class="eyebrow">GÜNCEL</span>
-                <h2>Son Yazılar</h2>
+                <div>
+                    <span class="eyebrow">GÜNCEL</span>
+                    <h2>Son Yazılar</h2>
+                </div>
+                <a class="section-link" href="{% url 'articles:archive' %}">Tümünü gör →</a>
             </div>
 
             <div class="article-grid">
@@ -92,8 +122,10 @@
     {% if archive_articles %}
         <section class="articles-section archive-section">
             <div class="section-heading">
-                <span class="eyebrow">YENİDEN OKUMAK</span>
-                <h2>Arşivden Seçmeler</h2>
+                <div>
+                    <span class="eyebrow">YENİDEN OKUMAK</span>
+                    <h2>Arşivden Seçmeler</h2>
+                </div>
             </div>
 
             <div class="article-grid">
@@ -107,22 +139,18 @@
     {% if concepts %}
         <section class="articles-section" id="kavramlar">
             <div class="section-heading">
-                <span class="eyebrow">KAVRAM SETİ</span>
-                <h2>Kavramlar Sözlüğü</h2>
+                <div>
+                    <span class="eyebrow">KAVRAM SETİ</span>
+                    <h2>Kavramlar Sözlüğü</h2>
+                </div>
             </div>
 
             <div class="concept-grid">
                 {% for concept in concepts %}
                     <article class="concept-card">
-                        <span class="concept-initial" aria-hidden="true">
-                            {{ concept.name|first }}
-                        </span>
-
+                        <span class="concept-initial" aria-hidden="true">{{ concept.name|first }}</span>
                         <h3>{{ concept.name }}</h3>
-
-                        <div class="concept-description">
-                            {{ concept.description|linebreaks }}
-                        </div>
+                        <div class="concept-description">{{ concept.description|linebreaks }}</div>
                     </article>
                 {% endfor %}
             </div>

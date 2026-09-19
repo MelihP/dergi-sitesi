@@ -4,50 +4,94 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#ececea">
     <title>{% block title %}Dergi{% endblock %}</title>
     <link rel="stylesheet" href="{% static 'articles/css/style.css' %}">
 </head>
 <body>
+    <a class="skip-link" href="#main-content">İçeriğe geç</a>
+
+    <div class="social-bar" aria-label="Sosyal medya bağlantıları">
+        <div class="social-bar-inner">
+            <span class="social-label">Bizi takip edin</span>
+            <div class="social-links">
+                <a href="https://x.com/yeniyasamnews5"
+                   target="_blank"
+                   rel="noopener noreferrer"
+                   aria-label="Dergi X hesabı (yeni sekmede açılır)">X</a>
+                <a href="https://www.instagram.com/yeniyasamgazetesi/"
+                   target="_blank"
+                   rel="noopener noreferrer"
+                   aria-label="Dergi Instagram hesabı (yeni sekmede açılır)">Instagram</a>
+                <a href="https://www.youtube.com/@yeniyasammedia"
+                   target="_blank"
+                   rel="noopener noreferrer"
+                   aria-label="Dergi YouTube hesabı (yeni sekmede açılır)">YouTube</a>
+            </div>
+        </div>
+    </div>
+
     <header class="site-header">
-        <a class="logo" href="{% url 'articles:home' %}">Dergi.</a>
+        <div class="header-main">
+            <a class="logo" href="{% url 'articles:home' %}" aria-label="Dergi ana sayfa">
+                Dergi<span aria-hidden="true">.</span>
+            </a>
 
-        <nav aria-label="Ana menü">
-            <a href="{% url 'articles:home' %}">Ana Sayfa</a>
-            <a href="{% url 'articles:home' %}?bolum=dosya">Dosya</a>
-            <a href="{% url 'articles:home' %}?bolum=ceviri">Çeviri</a>
-            <a href="{% url 'articles:home' %}?bolum=tartisma">Tartışma</a>
-            <a href="{% url 'articles:home' %}#kavramlar">Kavramlar</a>
-            <a href="{% url 'articles:archive' %}">Tüm Yazılar</a>
-        </nav>
+            <button class="menu-toggle"
+                    type="button"
+                    aria-expanded="false"
+                    aria-controls="primary-navigation"
+                    data-menu-toggle>
+                <span class="menu-toggle-text">Menü</span>
+                <span class="menu-toggle-icon" aria-hidden="true"></span>
+            </button>
 
+            <div class="header-content" id="primary-navigation" data-menu>
+                <nav class="main-nav" aria-label="Ana menü">
+                    <a href="{% url 'articles:home' %}">Ana Sayfa</a>
+                    <a href="{% url 'articles:home' %}?bolum=dosya">Dosya</a>
+                    <a href="{% url 'articles:home' %}?bolum=ceviri">Çeviri</a>
+                    <a href="{% url 'articles:home' %}?bolum=tartisma">Tartışma</a>
+                    <a href="{% url 'articles:home' %}#kavramlar">Kavramlar</a>
+                    <a href="{% url 'articles:archive' %}">Tüm Yazılar</a>
+                </nav>
 
-    <form
-    class="header-search"
-    method="get"
-    action="{% url 'articles:archive' %}"
-    role="search"
-    aria-label="Sitede ara">
-
-    <input
-        type="search"
-        name="q"
-        maxlength="200"
-        placeholder="Yazı veya yazar ara…"
-        aria-label="Arama kelimesi"
-        value="{{ request.GET.q|default:'' }}">
-
-    <button type="submit">Ara</button>
-    </form>
+                <form class="header-search"
+                      method="get"
+                      action="{% url 'articles:archive' %}"
+                      role="search"
+                      aria-label="Sitede ara">
+                    <label class="sr-only" for="header-search-input">Yazı veya yazar ara</label>
+                    <input id="header-search-input"
+                           type="search"
+                           name="q"
+                           maxlength="200"
+                           placeholder="Yazı veya yazar ara…"
+                           value="{{ request.GET.q|default:'' }}">
+                    <button type="submit">Ara</button>
+                </form>
+            </div>
+        </div>
     </header>
 
-    <main class="container">
+    <main class="container" id="main-content" tabindex="-1">
         {% block content %}{% endblock %}
     </main>
-    <footer class="site-footer">
-        Dergi. — Düşünce, kültür ve tartışma.
-    </footer>
 
-    {% include "articles/social_panel.html" %}
+    <footer class="site-footer">
+        <div class="footer-inner">
+            <div>
+                <a class="footer-logo" href="{% url 'articles:home' %}">Dergi.</a>
+                <p>Düşünce, kültür ve tartışma.</p>
+            </div>
+            <div class="footer-links" aria-label="Alt menü">
+                <a href="{% url 'articles:archive' %}">Tüm Yazılar</a>
+                <a href="https://x.com/yeniyasamnews5" target="_blank" rel="noopener noreferrer">X</a>
+                <a href="https://www.instagram.com/yeniyasamgazetesi/" target="_blank" rel="noopener noreferrer">Instagram</a>
+                <a href="https://www.youtube.com/@yeniyasammedia" target="_blank" rel="noopener noreferrer">YouTube</a>
+            </div>
+        </div>
+    </footer>
 
     <script src="{% static 'articles/js/main.js' %}" defer></script>
 </body>

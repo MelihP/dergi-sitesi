@@ -1,3 +1,44 @@
+(() => {
+    const menuButton = document.querySelector("[data-menu-toggle]");
+    const menu = document.querySelector("[data-menu]");
+
+    if (!menuButton || !menu) return;
+
+    const closeMenu = () => {
+        menuButton.setAttribute("aria-expanded", "false");
+        menu.classList.remove("is-open");
+    };
+
+    menuButton.addEventListener("click", () => {
+        const willOpen =
+            menuButton.getAttribute("aria-expanded") !== "true";
+
+        menuButton.setAttribute(
+            "aria-expanded",
+            String(willOpen)
+        );
+
+        menu.classList.toggle("is-open", willOpen);
+    });
+
+    menu.querySelectorAll("a").forEach((link) => {
+        link.addEventListener("click", closeMenu);
+    });
+
+    document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape") {
+            closeMenu();
+        }
+    });
+
+    window.addEventListener("resize", () => {
+        if (window.innerWidth > 980) {
+            closeMenu();
+        }
+    });
+})();
+
+
 document.querySelectorAll("[data-slider]").forEach((slider) => {
     const slides = Array.from(
         slider.querySelectorAll("[data-slide]")
@@ -5,133 +46,255 @@ document.querySelectorAll("[data-slider]").forEach((slider) => {
 
     if (slides.length < 2) return;
 
-    const previousButton = slider.querySelector("[data-prev]");
-    const nextButton = slider.querySelector("[data-next]");
-    const counter = slider.querySelector("[data-counter]");
+    const previousButton =
+        slider.querySelector("[data-prev]");
+
+    const nextButton =
+        slider.querySelector("[data-next]");
+
+    const pauseButton =
+        slider.querySelector("[data-pause]");
+
+    const pauseIcon =
+        slider.querySelector("[data-pause-icon]");
+
+    const counter =
+        slider.querySelector("[data-counter]");
+
+    const dots = Array.from(
+        slider.querySelectorAll("[data-dot]")
+    );
+
+    const reducedMotion = window.matchMedia(
+        "(prefers-reduced-motion: reduce)"
+    );
+
+    const interval =
+        Number(slider.dataset.autoplay) || 6000;
 
     let currentIndex = 0;
+    let timer = null;
+    let userPaused = reducedMotion.matches;
+    let pointerStartX = null;
 
-    function showSlide(index) {
-        currentIndex = (index + slides.length) % slides.length;
+
+    const showSlide = (index) => {
+        currentIndex =
+            (index + slides.length) % slides.length;
 
         slides.forEach((slide, slideIndex) => {
-            slide.hidden = slideIndex !== currentIndex;
+            const isActive =
+                slideIndex === currentIndex;
+
+            slide.hidden = !isActive;
+
+            slide.setAttribute(
+                "aria-hidden",
+                String(!isActive)
+            );
         });
 
-        counter.textContent =
-            `${currentIndex + 1} / ${slides.length}`;
-    }
+        dots.forEach((dot, dotIndex) => {
+            dot.setAttribute(
+                "aria-current",
+                String(dotIndex === currentIndex)
+            );
+        });
 
-    previousButton.addEventListener("click", () => {
-        showSlide(currentIndex - 1);
-    });
+        if (counter) {
+            counter.textContent =
+                `${currentIndex + 1} / ${slides.length}`;
+        }
+    };
 
-    nextButton.addEventListener("click", () => {
-        showSlide(currentIndex + 1);
-    });
-});
 
-(() => {
-    const launcher = document.getElementById("social-launcher");
-    const panel = document.getElementById("social-panel");
-    const closeButton = document.getElementById("social-close");
+    const stopAutoplay = () => {
+        window.clearInterval(timer);
+        timer = null;
+    };
 
-    if (!launcher || !panel || !closeButton) return;
 
-    const tabs = Array.from(
-        panel.querySelectorAll('[role="tab"]')
-    );
+    const startAutoplay = () => {
+        stopAutoplay();
 
-    const feeds = Array.from(
-        panel.querySelectorAll('[role="tabpanel"]')
-    );
+        const isInteracting =
+            slider.matches(":hover") ||
+            slider.contains(document.activeElement);
 
-    function activateTab(selectedTab, moveFocus = false) {
-        tabs.forEach((tab) => {
-            const selected = tab === selectedTab;
+        if (
+            userPaused ||
+            reducedMotion.matches ||
+            document.hidden ||
+            isInteracting
+        ) {
+            return;
+        }
 
-            tab.setAttribute(
-                "aria-selected",
-                String(selected)
+        timer = window.setInterval(() => {
+            showSlide(currentIndex + 1);
+        }, interval);
+    };
+
+
+    const resetAutoplay = () => {
+        stopAutoplay();
+        startAutoplay();
+    };
+
+
+    const updatePauseButton = () => {
+        if (!pauseButton || !pauseIcon) return;
+
+        if (reducedMotion.matches) {
+            pauseButton.disabled = true;
+
+            pauseButton.setAttribute(
+                "aria-label",
+                "Hareket azaltma ayarı nedeniyle otomatik geçiş kapalı"
             );
 
-            tab.tabIndex = selected ? 0 : -1;
-        });
-
-        const activePanelId =
-            selectedTab.getAttribute("aria-controls");
-
-        feeds.forEach((feed) => {
-            feed.hidden = feed.id !== activePanelId;
-        });
-
-        panel.querySelector(".social-panel-body").scrollTop = 0;
-
-        if (moveFocus) {
-            selectedTab.focus();
+            pauseIcon.textContent = "▶";
+            return;
         }
-    }
 
-    function openPanel() {
-        panel.hidden = false;
-        launcher.setAttribute("aria-expanded", "true");
+        pauseButton.disabled = false;
 
-        const activeTab = tabs.find(
-            (tab) => tab.getAttribute("aria-selected") === "true"
+        pauseButton.setAttribute(
+            "aria-label",
+            userPaused
+                ? "Otomatik geçişi başlat"
+                : "Otomatik geçişi durdur"
         );
 
-        if (activeTab) {
-            activeTab.focus();
-        } else {
-            closeButton.focus();
-        }
-    }
+        pauseIcon.textContent =
+            userPaused ? "▶" : "Ⅱ";
+    };
 
-    function closePanel() {
-        panel.hidden = true;
-        launcher.setAttribute("aria-expanded", "false");
-        launcher.focus();
-    }
 
-    launcher.addEventListener("click", () => {
-        if (panel.hidden) {
-            openPanel();
-        } else {
-            closePanel();
-        }
+    previousButton?.addEventListener("click", () => {
+        showSlide(currentIndex - 1);
+        resetAutoplay();
     });
 
-    closeButton.addEventListener("click", closePanel);
 
-    panel.addEventListener("keydown", (event) => {
-        if (event.key === "Escape") {
-            event.preventDefault();
-            closePanel();
-        }
+    nextButton?.addEventListener("click", () => {
+        showSlide(currentIndex + 1);
+        resetAutoplay();
     });
 
-    tabs.forEach((tab, index) => {
-        tab.addEventListener("click", () => {
-            activateTab(tab);
+
+    dots.forEach((dot) => {
+        dot.addEventListener("click", () => {
+            showSlide(
+                Number(dot.dataset.slideTo)
+            );
+
+            resetAutoplay();
         });
+    });
 
-        tab.addEventListener("keydown", (event) => {
-            let nextIndex = index;
 
-            if (event.key === "ArrowRight") {
-                nextIndex = (index + 1) % tabs.length;
-            } else if (event.key === "ArrowLeft") {
-                nextIndex = (index - 1 + tabs.length) % tabs.length;
-            } else if (event.key === "Home") {
-                nextIndex = 0;
-            } else if (event.key === "End") {
-                nextIndex = tabs.length - 1;
+    pauseButton?.addEventListener("click", () => {
+        userPaused = !userPaused;
+
+        updatePauseButton();
+
+        if (userPaused) {
+            stopAutoplay();
+        } else {
+            startAutoplay();
+        }
+    });
+
+
+    slider.addEventListener("keydown", (event) => {
+        if (event.key === "ArrowLeft") {
+            showSlide(currentIndex - 1);
+            resetAutoplay();
+        } else if (event.key === "ArrowRight") {
+            showSlide(currentIndex + 1);
+            resetAutoplay();
+        }
+    });
+
+
+    slider.addEventListener("pointerdown", (event) => {
+        if (event.pointerType === "touch") {
+            pointerStartX = event.clientX;
+        }
+    });
+
+
+    slider.addEventListener("pointerup", (event) => {
+        if (pointerStartX === null) return;
+
+        const distance =
+            event.clientX - pointerStartX;
+
+        pointerStartX = null;
+
+        if (Math.abs(distance) < 50) return;
+
+        showSlide(
+            currentIndex + (distance < 0 ? 1 : -1)
+        );
+
+        resetAutoplay();
+    });
+
+
+    slider.addEventListener(
+        "mouseenter",
+        stopAutoplay
+    );
+
+    slider.addEventListener(
+        "mouseleave",
+        startAutoplay
+    );
+
+    slider.addEventListener(
+        "focusin",
+        stopAutoplay
+    );
+
+    slider.addEventListener("focusout", (event) => {
+        if (!slider.contains(event.relatedTarget)) {
+            window.setTimeout(
+                startAutoplay,
+                0
+            );
+        }
+    });
+
+
+    document.addEventListener(
+        "visibilitychange",
+        () => {
+            if (document.hidden) {
+                stopAutoplay();
             } else {
-                return;
+                startAutoplay();
             }
+        }
+    );
 
-            event.preventDefault();
-            activateTab(tabs[nextIndex], true);
-        });
-    });
-})();
+
+    reducedMotion.addEventListener?.(
+        "change",
+        () => {
+            updatePauseButton();
+
+            if (reducedMotion.matches) {
+                stopAutoplay();
+            } else {
+                startAutoplay();
+            }
+        }
+    );
+
+
+    showSlide(0);
+    updatePauseButton();
+    startAutoplay();
+});
