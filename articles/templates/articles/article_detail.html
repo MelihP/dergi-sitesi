@@ -1,31 +1,101 @@
 {% extends "articles/base.html" %}
 
-{% block title %}{{ article.title }} | Dergi{% endblock %}
+{% block title %}
+    {{ article.title }} | Dergi
+{% endblock %}
 
 {% block content %}
+
     <article class="reading">
-        <a class="back-link" href="{% url 'articles:home' %}">
+        <a
+            class="back-link"
+            href="{% url 'articles:home' %}">
             ← Ana sayfaya dön
         </a>
 
+        {% if article.dossier %}
+            <a
+                class="article-dossier-link"
+                href="{% url 'articles:dossier_detail' article.dossier.slug %}">
+
+                <span>
+                    Bu yazının dosyası
+                </span>
+
+                <strong>
+                    {{ article.dossier.title }}
+                </strong>
+            </a>
+        {% endif %}
+
         <header class="article-header">
-            <span class="eyebrow">{{ article.get_section_display }}</span>
-            <h1>{{ article.title }}</h1>
-            <p class="meta">{{ article.author_name }}</p>
+            <span class="eyebrow">
+                {{ article.get_section_display }}
+            </span>
+
+            <h1>
+                {{ article.title }}
+            </h1>
+
+            <div class="article-meta">
+                <span>
+                    {{ article.author_name }}
+                </span>
+
+                {% if article.published_at %}
+                    <time
+                        datetime="{{ article.published_at|date:'c' }}">
+                        {{ article.published_at|date:"j F Y" }}
+                    </time>
+                {% endif %}
+            </div>
 
             {% if article.summary %}
-                <p class="article-summary">{{ article.summary }}</p>
+                <p class="article-summary">
+                    {{ article.summary }}
+                </p>
             {% endif %}
         </header>
 
         {% if article.cover %}
-            <img class="detail-cover"
-                 src="{{ article.cover.url }}"
-                 alt="{{ article.title }}">
+            <img
+                class="detail-cover"
+                src="{{ article.cover.url }}"
+                alt="{{ article.title }}">
         {% endif %}
 
         <div class="article-text">
-            {{ article.formatted_content }}
+            {{ article.formatted_content|safe }}
         </div>
     </article>
+
+
+    {% if related_articles %}
+        <section class="related-dossier-articles">
+            <div class="section-heading">
+                <div>
+                    <span class="eyebrow">
+                        {{ article.dossier.title }}
+                    </span>
+
+                    <h2>
+                        Bu dosyadan diğer yazılar
+                    </h2>
+                </div>
+
+                <a
+                    class="section-link"
+                    href="{% url 'articles:dossier_detail' article.dossier.slug %}">
+                    Dosyanın tamamı →
+                </a>
+            </div>
+
+            <div class="article-grid">
+                {% for related_article in related_articles %}
+                    {% include "articles/_article_card.html" with article=related_article %}
+                {% endfor %}
+            </div>
+        </section>
+    {% endif %}
+
 {% endblock %}

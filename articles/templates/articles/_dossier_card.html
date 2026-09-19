@@ -1,0 +1,49 @@
+<article class="dossier-card">
+    <a
+        class="dossier-card-link"
+        href="{% url 'articles:dossier_detail' dossier.slug %}">
+
+        {% if dossier.cover %}
+            <img
+                class="dossier-card-image"
+                src="{{ dossier.cover.url }}"
+                alt="{{ dossier.title }}"
+                loading="lazy">
+        {% else %}
+            <div
+                class="dossier-card-placeholder"
+                aria-hidden="true">
+                <span>
+                    {{ dossier.title|first }}
+                </span>
+            </div>
+        {% endif %}
+
+        <div class="dossier-card-body">
+            <span class="eyebrow">
+                DOSYA
+            </span>
+
+            <h3>
+                {{ dossier.title }}
+            </h3>
+
+            {% if dossier.summary %}
+                <p>
+                    {{ dossier.summary|truncatechars:180 }}
+                </p>
+            {% endif %}
+
+            <div class="dossier-card-footer">
+                <span>
+                    {{ dossier.published_article_count }}
+                    yazı
+                </span>
+
+                <span class="dossier-card-action">
+                    Dosyayı incele →
+                </span>
+            </div>
+        </div>
+    </a>
+</article>

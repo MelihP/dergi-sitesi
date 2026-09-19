@@ -101,6 +101,35 @@
         </section>
     {% endif %}
 
+    {% if dossiers %}
+    <section class="articles-section dossier-home-section">
+        <div class="section-heading">
+            <div>
+                <span class="eyebrow">
+                    DERGİ DOSYALARI
+                </span>
+
+                <h2>
+                    Öne Çıkan Dosyalar
+                </h2>
+            </div>
+
+            <a
+                class="section-link"
+                href="{% url 'articles:dossier_list' %}">
+                Tüm dosyaları gör →
+            </a>
+        </div>
+
+        <div class="dossier-grid">
+            {% for dossier in dossiers %}
+                {% include "articles/_dossier_card.html" %}
+            {% endfor %}
+        </div>
+    </section>
+{% endif %}
+
+
     {% if articles %}
         <section class="articles-section">
             <div class="section-heading">

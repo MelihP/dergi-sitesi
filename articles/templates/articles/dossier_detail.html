@@ -1,0 +1,125 @@
+{% extends "articles/base.html" %}
+
+{% block title %}
+    {{ dossier.title }} Dosyası | Dergi
+{% endblock %}
+
+{% block content %}
+
+    <article class="dossier-detail">
+        <header class="dossier-hero">
+            {% if dossier.cover %}
+                <img
+                    class="dossier-hero-image"
+                    src="{{ dossier.cover.url }}"
+                    alt="{{ dossier.title }}">
+            {% else %}
+                <div
+                    class="dossier-hero-placeholder"
+                    aria-hidden="true">
+                </div>
+            {% endif %}
+
+            <div
+                class="dossier-hero-overlay"
+                aria-hidden="true">
+            </div>
+
+            <div class="dossier-hero-content">
+                <span class="eyebrow">
+                    DERGİ DOSYASI
+                </span>
+
+                <h1>
+                    {{ dossier.title }}
+                </h1>
+
+                {% if dossier.summary %}
+                    <p class="dossier-hero-summary">
+                        {{ dossier.summary }}
+                    </p>
+                {% endif %}
+
+                <div class="dossier-hero-meta">
+                    <span>
+                        {{ page_obj.paginator.count }}
+                        yazı
+                    </span>
+
+                    {% if dossier.published_at %}
+                        <time
+                            datetime="{{ dossier.published_at|date:'c' }}">
+                            {{ dossier.published_at|date:"j F Y" }}
+                        </time>
+                    {% endif %}
+                </div>
+            </div>
+        </header>
+
+        {% if dossier.description %}
+            <section class="dossier-introduction">
+                <span class="eyebrow">
+                    DOSYA HAKKINDA
+                </span>
+
+                <div class="dossier-description">
+                    {{ dossier.description|linebreaks }}
+                </div>
+            </section>
+        {% endif %}
+
+        <section class="dossier-articles">
+            <div class="section-heading">
+                <div>
+                    <span class="eyebrow">
+                        DOSYA İÇERİĞİ
+                    </span>
+
+                    <h2>
+                        Yazılar
+                    </h2>
+                </div>
+            </div>
+
+            <div class="article-grid">
+                {% for article in page_obj %}
+                    {% include "articles/_article_card.html" %}
+                {% empty %}
+                    <div class="dossier-empty">
+                        <h2>
+                            Bu dosyada henüz yayımlanmış
+                            yazı bulunmuyor.
+                        </h2>
+                    </div>
+                {% endfor %}
+            </div>
+
+            {% if page_obj.paginator.num_pages > 1 %}
+                <nav
+                    class="pagination"
+                    aria-label="Dosya yazıları sayfaları">
+
+                    {% if page_obj.has_previous %}
+                        <a
+                            href="?sayfa={{ page_obj.previous_page_number }}">
+                            ← Önceki
+                        </a>
+                    {% endif %}
+
+                    <span>
+                        Sayfa {{ page_obj.number }}
+                        / {{ page_obj.paginator.num_pages }}
+                    </span>
+
+                    {% if page_obj.has_next %}
+                        <a
+                            href="?sayfa={{ page_obj.next_page_number }}">
+                            Sonraki →
+                        </a>
+                    {% endif %}
+                </nav>
+            {% endif %}
+        </section>
+    </article>
+
+{% endblock %}
