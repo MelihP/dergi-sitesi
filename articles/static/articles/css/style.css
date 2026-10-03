@@ -1655,3 +1655,23 @@ select:focus-visible {
 .site-footer .footer-links a:hover, .social-bar .social-links a:hover { color: var(--text); text-decoration: underline; }
 .about-section { margin-top: 48px; padding-top: 32px; border-top: 1px solid var(--border); scroll-margin-top: 100px; }
 .about-section h2 { font-size: clamp(28px, 4vw, 40px); }
+
+.slider-empty-art { display: grid; place-items: center; }
+.slider-empty-art span { color: #fff; font: bold clamp(48px, 7vw, 100px) Georgia, serif; }
+.slider-empty-status { padding: 18px 24px; color: var(--muted); font-size: 14px; }
+.dossier-folder-card { border: 1px solid var(--border); border-top: 5px solid var(--brand-orange); background: var(--surface-strong); border-radius: 6px; }
+.dossier-folder-link { display: flex; gap: 20px; padding: 24px; height: 100%; align-items: flex-start; }
+.dossier-folder-link:hover h3 { text-decoration: underline; }
+.dossier-folder-art { position: relative; flex: 0 0 80px; width: 80px; color: var(--brand-orange); }
+.dossier-folder-art svg { display: block; width: 80px; height: 64px; }
+.dossier-folder-art img { position: absolute; width: 40px; height: 32px; top: 23px; left: 20px; object-fit: contain; }
+.dossier-folder-body { min-width: 0; flex: 1; }
+.dossier-folder-body h3 { margin: 8px 0 14px; font-size: clamp(24px, 3vw, 32px); overflow-wrap: anywhere; }
+.dossier-folder-body p { color: var(--muted); font-size: 14px; margin: 0 0 16px; }
+.dossier-folder-meta { display: flex; flex-wrap: wrap; gap: 12px; justify-content: space-between; font-size: 13px; }
+@media (max-width: 480px) {
+    .dossier-folder-link { padding: 18px; gap: 14px; }
+    .dossier-folder-art { flex-basis: 60px; width: 60px; }
+    .dossier-folder-art svg { width: 60px; height: 48px; }
+    .dossier-folder-art img { width: 30px; height: 24px; top: 17px; left: 15px; }
+}

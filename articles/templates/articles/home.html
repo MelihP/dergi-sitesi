@@ -94,10 +94,19 @@
             {% endif %}
         </section>
     {% else %}
-        <section class="empty-state">
-            <span class="eyebrow">DERGİ</span>
-            <h1>Yeni fikirler burada buluşacak.</h1>
-            <p>Bu bölümde henüz yayımlanmış yazı bulunmuyor.</p>
+        {% if not section_title %}<h1 class="slider-heading">Yeni fikirler burada buluşacak.</h1>{% endif %}
+        <section class="featured-slider" aria-label="Son yazılar">
+            <article class="hero slider-empty">
+                <div class="hero-placeholder slider-empty-art" aria-hidden="true">
+                    <span>Dergi.</span>
+                </div>
+                <div class="hero-content">
+                    <span class="eyebrow">SON YAZILAR</span>
+                    <h2>Yeni fikirler burada buluşacak.</h2>
+                    <p>Bu bölümde henüz yayımlanmış yazı bulunmuyor.</p>
+                </div>
+            </article>
+            <div class="slider-toolbar slider-empty-status">Yeni yazılar yayımlandığında burada yer alacak.</div>
         </section>
     {% endif %}
 

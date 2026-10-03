@@ -1,7 +1,7 @@
 from django import forms
 from django.template.defaultfilters import linebreaks
 
-from .models import Article
+from .models import Article, Dossier
 from .richtext import clean_html, plain_text
 
 
@@ -77,3 +77,14 @@ class ArticleAdminForm(forms.ModelForm):
         self.instance.content_html = self._cleaned_html
 
         return super().save(commit=commit)
+
+class DossierAdminForm(forms.ModelForm):
+    class Meta:
+        model = Dossier
+        fields = "__all__"
+        labels = {"title": "Dosya / klasör adı", "description": "Dosyanın tanıtımı"}
+        help_texts = {
+            "title": "Örneğin: Emek, Kent veya Ekoloji. Yazıları aşağıdaki Bu dosyadaki yazılar bölümünden ekleyin.",
+            "description": "Bu alan dosyanın tanıtımıdır; yazı metinlerini aşağıdaki yazı formlarına girin.",
+            "status": "Dosyanın ve içindeki yazıların yayın durumları ayrıdır. Görünmeleri için ikisini de Yayında olarak kaydedin.",
+        }

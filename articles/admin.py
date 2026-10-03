@@ -1,24 +1,23 @@
 from django.contrib import admin
 
-from .forms import ArticleAdminForm
+from .forms import ArticleAdminForm, DossierAdminForm
 from .models import Article, Concept, Dossier, SocialPost, SitePage
 
 
-class DossierArticleInline(admin.TabularInline):
+class DossierArticleInline(admin.StackedInline):
+    form = ArticleAdminForm
     model = Article
 
     fields = (
-        "title",
+        ("title", "slug"),
         "author_name",
-        "status",
-        "dossier_order",
+        "summary",
+        "content",
+        "cover",
+        ("section", "status"),
+        ("published_at", "dossier_order"),
     )
-
-    readonly_fields = (
-        "title",
-        "author_name",
-        "status",
-    )
+    prepopulated_fields = {"slug": ("title",)}
 
     ordering = (
         "dossier_order",
@@ -29,12 +28,14 @@ class DossierArticleInline(admin.TabularInline):
     can_delete = False
     show_change_link = True
 
-    verbose_name = "Bu dosyadaki yazı"
+    verbose_name = "yazı"
     verbose_name_plural = "Bu dosyadaki yazılar"
 
 
 @admin.register(Dossier)
 class DossierAdmin(admin.ModelAdmin):
+    form = DossierAdminForm
+    change_form_template = "admin/articles/dossier/change_form.html"
     list_display = (
         "title",
         "status",
@@ -81,7 +82,7 @@ class DossierAdmin(admin.ModelAdmin):
 
     fieldsets = (
         (
-            "Dosya bilgileri",
+            "Dosya / klasör bilgileri",
             {
                 "fields": (
                     "title",

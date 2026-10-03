@@ -57,7 +57,7 @@ class MagazineTests(TestCase):
         self.article("baska", dossier=other)
         index = self.client.get(reverse("articles:dossier_list"))
         self.assertContains(index, "Emek")
-        self.assertContains(index, "2\n                    yazı")
+        self.assertContains(index, "2 yazı")
         self.assertNotContains(index, "Gizli dosya")
         detail = self.client.get(reverse("articles:dossier_detail", args=["emek"]))
         self.assertEqual([a.slug for a in detail.context["page_obj"]], ["ilk", "ikinci"])
@@ -159,3 +159,45 @@ class UnifiedAboutTests(TestCase):
         SitePage.objects.filter(slug="kunye").update(content="Gizli ekip", is_published=False)
         response = self.client.get(reverse("articles:site_page", args=["hakkimizda"]))
         self.assertNotContains(response, "Gizli ekip")
+
+
+class DossierEditorTests(TestCase):
+    def setUp(self):
+        from django.contrib.auth import get_user_model
+        self.user = get_user_model().objects.create_superuser(username="editor", email="editor@example.com")
+        self.client.force_login(self.user)
+
+    def test_create_dossier_with_multiple_articles_in_one_form(self):
+        data = {"title": "Kent Dosyası", "slug": "kent-dosyasi", "status": "published", "order": "0",
+                "articles-TOTAL_FORMS": "2", "articles-INITIAL_FORMS": "0",
+                "articles-MIN_NUM_FORMS": "0", "articles-MAX_NUM_FORMS": "1000"}
+        for i in range(2):
+            data.update({f"articles-{i}-title": f"Kent yazısı {i}", f"articles-{i}-slug": f"kent-{i}",
+                         f"articles-{i}-author_name": "Yazar", f"articles-{i}-content": "<p>Yazı metni</p>",
+                         f"articles-{i}-section": "dosya", f"articles-{i}-status": "published",
+                         f"articles-{i}-dossier_order": str(i)})
+        response = self.client.post(reverse("admin:articles_dossier_add"), data)
+        self.assertEqual(response.status_code, 302)
+        dossier = Dossier.objects.get(slug="kent-dosyasi")
+        self.assertEqual(dossier.articles.count(), 2)
+        self.assertEqual(dossier.articles.first().content_html, "<p>Yazı metni</p>")
+        home = self.client.get(reverse("articles:home"))
+        self.assertEqual(len(home.context["featured"]), 2)
+        self.assertContains(home, "data-slider")
+        self.assertContains(home, "data-next")
+        library = self.client.get(reverse("articles:dossier_list"))
+        self.assertContains(library, "dossier-folder-card")
+        self.assertContains(library, "2 yazı")
+
+    def test_admin_explains_folder_workflow_and_has_editable_article_fields(self):
+        response = self.client.get(reverse("admin:articles_dossier_add"))
+        self.assertContains(response, "Dosya / klasör adı")
+        self.assertContains(response, 'name="articles-__prefix__-content"')
+        self.assertContains(response, 'name="articles-__prefix__-title"')
+        self.assertContains(response, "Dosya kütüphanesi")
+
+    def test_empty_home_keeps_slider_layout_without_fake_articles(self):
+        response = self.client.get(reverse("articles:home"))
+        self.assertContains(response, 'class="featured-slider"')
+        self.assertContains(response, 'class="hero slider-empty"')
+        self.assertNotContains(response, "data-slide\n")

@@ -1,10 +1,7 @@
-document.addEventListener("DOMContentLoaded", () => {
-    const textarea = document.querySelector(
-        ".rich-editor-source"
-    );
-
-    if (!textarea) return;
-
+(() => {
+const initializeEditor = (textarea) => {
+    if (textarea.dataset.editorInitialized || textarea.closest(".empty-form")) return;
+    textarea.dataset.editorInitialized = "true";
     const form = textarea.closest("form");
 
     const wrapper = document.createElement("div");
@@ -97,4 +94,11 @@ document.addEventListener("DOMContentLoaded", () => {
     form.addEventListener("submit", () => {
         textarea.value = editor.getSemanticHTML();
     });
-});
+};
+
+const initializeEditors = (root) => {
+    root.querySelectorAll(".rich-editor-source").forEach(initializeEditor);
+};
+document.addEventListener("DOMContentLoaded", () => initializeEditors(document));
+document.addEventListener("formset:added", (event) => initializeEditors(event.target));
+})();

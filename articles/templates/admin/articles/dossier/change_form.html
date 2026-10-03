@@ -1,0 +1,13 @@
+{% extends "admin/change_form.html" %}
+{% block form_top %}
+    {{ block.super }}
+    <div class="module" style="padding: 16px; margin-bottom: 20px;">
+        <h2>Dosya kütüphanesi</h2>
+        <p>Dosya bir klasördür. Önce dosyanın adını ve tanıtımını girin; ardından aşağıdaki
+        <strong>Bu dosyadaki yazılar</strong> bölümünden <strong>Yeni bir yazı ekle</strong>
+        bağlantısıyla bir veya birden fazla yazı ekleyin.</p>
+        <p>Yazıları ayrıca Yazılar bölümünde mevcut bir dosyaya bağlayabilirsiniz.
+        Ana sayfa slider'ına dosya kapağı değil, <strong>Yayında</strong> durumundaki yazılar gelir.
+        Yayın tarihi gelecekteyse yazı zamanı gelene kadar görünmez.</p>
+    </div>
+{% endblock %}

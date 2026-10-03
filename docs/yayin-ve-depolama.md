@@ -19,7 +19,8 @@ Sendika.org metni burada kopyalanmadı veya incelenmiş gibi aktarılmadı.
 
 1. Yönetim panelinde **Dosyalar → Ekle**: örneğin “Emek”, “Kent”, “Ekoloji”.
 2. Başlık, açıklama, isteğe bağlı kapak ve yayın durumunu belirleyin.
-3. **Yazılar → Ekle**: “Bağlı olduğu dosya” alanında dosyayı seçin.
+3. Aynı dosya formunda **Bu dosyadaki yazılar → Yeni bir yazı ekle** ile yazı başlığını, yazarı ve metni girin. Tek dosyaya birden fazla yazı ekleyip birlikte kaydedebilirsiniz.
+   Alternatif: **Yazılar → Ekle** ekranındaki “Bağlı olduğu dosya” alanından dosyayı seçin.
 4. “Dosya içindeki sıralama” alanıyla içindekiler sırasını belirleyin.
 5. Dosya ve yazı ayrı ayrı yayında olmalı; ileri tarihli içerik zamanı gelmeden görünmez.
 
@@ -28,7 +29,8 @@ panel dosya seçimini zorunlu tutar. Mevcut bağlantısız yazılar otomatik ola
 atanmadı: hangi dosyaya ait olduklarına editör karar vermeli. Dosya silmek yazıları silmez.
 
 Ana sayfa slider'ı seçili bölümdeki son eklenen, yayımlanmış en fazla beş yazıyı gösterir.
-Manşet işaretine ihtiyaç duymaz. Otomatik geçiş altı saniyedir; oklar, noktalar ve durdurma
+Manşet işaretine ihtiyaç duymaz. Yazı yokken slider düzeninde bir karşılama alanı görünür;
+tek yazıda geçiş yapılmaz, iki yazıdan itibaren otomatik dönüş başlar. Otomatik geçiş altı saniyedir; oklar, noktalar ve durdurma
 butonu vardır. Fare üstündeyken, klavye odağı içindeyken veya hareket azaltma tercihi
 etkinken geçiş durur. Görseller kırpılmadan gösterilir.
 
