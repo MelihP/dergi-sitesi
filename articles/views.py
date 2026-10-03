@@ -1,6 +1,7 @@
 from django.core.paginator import Paginator
 from django.db.models import Count, Q
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, render, redirect
+from django.urls import reverse
 from django.utils import timezone
 
 from .archive_forms import ArchiveFilterForm
@@ -278,4 +279,10 @@ def article_detail(request, slug):
 
 def site_page(request, slug):
     page = get_object_or_404(SitePage, slug=slug, is_published=True)
-    return render(request, "articles/site_page.html", {"page": page})
+    section_slugs = ("kunye", "yayin-ilkeleri")
+    if slug in section_slugs:
+        get_object_or_404(SitePage, slug="hakkimizda", is_published=True)
+        return redirect(reverse("articles:site_page", args=["hakkimizda"]) + "#" + slug)
+    sections = (SitePage.objects.filter(slug__in=section_slugs, is_published=True)
+                if slug == "hakkimizda" else SitePage.objects.none())
+    return render(request, "articles/site_page.html", {"page": page, "sections": sections})

@@ -12,5 +12,16 @@
             <p>Bu sayfanın içeriği hazırlanıyor.</p>
         {% endif %}
     </div>
+    {% for section in sections %}
+        <section class="about-section" id="{{ section.slug }}" aria-labelledby="heading-{{ section.slug }}">
+            <h2 id="heading-{{ section.slug }}">{{ section.title }}</h2>
+            {% if section.intro %}<p class="article-summary">{{ section.intro }}</p>{% endif %}
+            <div class="article-text">
+                {% if section.content %}{{ section.content|linebreaks }}{% else %}
+                    <p>Bu bölümün içeriği hazırlanıyor.</p>
+                {% endif %}
+            </div>
+        </section>
+    {% endfor %}
 </article>
 {% endblock %}

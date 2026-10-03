@@ -4,6 +4,8 @@
 
 Migration Hakkımızda, Künye ve Yayın İlkeleri sayfalarını oluşturur. Yönetim panelindeki
 **Kurumsal sayfalar** bölümünden başlık, giriş, metin ve menü sırası değiştirilebilir.
+Menüde yalnızca Hakkımızda görünür; Künye ve Yayın İlkeleri aynı sayfanın alt bölümleridir.
+Mevcut metinler korunur; eski sayfa bağlantıları ilgili alt bölüme yönlendirilir.
 Üçüncü başlık da değiştirilebilir; başka sayfalar eklenebilir. Taslak metin veya gerçek
 olmayan ekip bilgileri yayımlanmaz; boş sayfalarda içerik hazırlanıyor mesajı görünür.
 

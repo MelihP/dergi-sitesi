@@ -27,4 +27,4 @@ def social_media(request):
 
 def institutional_pages(request):
     from .models import SitePage
-    return {"institutional_pages": SitePage.objects.filter(is_published=True)}
+    return {"institutional_pages": SitePage.objects.filter(slug="hakkimizda", is_published=True)}

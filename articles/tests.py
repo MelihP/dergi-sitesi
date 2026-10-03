@@ -82,7 +82,7 @@ class MagazineTests(TestCase):
         response = self.client.get(reverse("articles:site_page", args=[page.slug]))
         self.assertContains(response, "Bizim dergimiz.")
         self.assertNotContains(response, "<script>alert(1)</script>")
-        self.assertContains(self.client.get(reverse("articles:home")), "Künye")
+        self.assertNotContains(self.client.get(reverse("articles:home")), "/kurumsal/kunye/")
         page.is_published = False
         page.save()
         self.assertEqual(self.client.get(reverse("articles:site_page", args=[page.slug])).status_code, 404)
@@ -140,3 +140,22 @@ class SocialPanelTests(TestCase):
         response = self.client.get(reverse("articles:home"))
         self.assertContains(response, "Henüz paylaşım eklenmedi.", count=2)
         self.assertContains(response, "Instagram hesabına git")
+
+
+class UnifiedAboutTests(TestCase):
+    def test_about_includes_existing_content_and_legacy_links_redirect(self):
+        SitePage.objects.filter(slug="kunye").update(content="Künye ekibi")
+        SitePage.objects.filter(slug="yayin-ilkeleri").update(content="Yayın ilkelerimiz")
+        response = self.client.get(reverse("articles:site_page", args=["hakkimizda"]))
+        self.assertContains(response, "Künye ekibi")
+        self.assertContains(response, "Yayın ilkelerimiz")
+        menu = self.client.get(reverse("articles:home"))
+        self.assertEqual([p.slug for p in menu.context["institutional_pages"]], ["hakkimizda"])
+        for slug in ("kunye", "yayin-ilkeleri"):
+            self.assertRedirects(self.client.get(reverse("articles:site_page", args=[slug])),
+                reverse("articles:site_page", args=["hakkimizda"]) + "#" + slug)
+
+    def test_hidden_sections_are_not_published_inside_about(self):
+        SitePage.objects.filter(slug="kunye").update(content="Gizli ekip", is_published=False)
+        response = self.client.get(reverse("articles:site_page", args=["hakkimizda"]))
+        self.assertNotContains(response, "Gizli ekip")
