@@ -298,3 +298,51 @@ document.querySelectorAll("[data-slider]").forEach((slider) => {
     updatePauseButton();
     startAutoplay();
 });
+(() => {
+    const launcher = document.getElementById("social-launcher");
+    const panel = document.getElementById("social-panel");
+    if (!launcher || !panel) return;
+    const closeButton = document.getElementById("social-close");
+    const tabs = Array.from(panel.querySelectorAll('[role="tab"]'));
+    const selectTab = (tab) => {
+        tabs.forEach((item) => {
+            const selected = item === tab;
+            item.setAttribute("aria-selected", String(selected));
+            item.tabIndex = selected ? 0 : -1;
+            document.getElementById(item.getAttribute("aria-controls")).hidden = !selected;
+        });
+    };
+    const close = (restoreFocus = false) => {
+        panel.hidden = true;
+        launcher.setAttribute("aria-expanded", "false");
+        launcher.setAttribute("aria-label", "Son sosyal medya paylaşımlarını aç");
+        if (restoreFocus) launcher.focus();
+    };
+    launcher.addEventListener("click", () => {
+        if (!panel.hidden) { close(); return; }
+        panel.hidden = false;
+        launcher.setAttribute("aria-expanded", "true");
+        launcher.setAttribute("aria-label", "Sosyal medya panelini kapat");
+        tabs.find((tab) => tab.getAttribute("aria-selected") === "true")?.focus();
+    });
+    closeButton?.addEventListener("click", () => close(true));
+    document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape" && !panel.hidden) close(true);
+    });
+    document.addEventListener("click", (event) => {
+        if (!panel.hidden && !panel.contains(event.target) && !launcher.contains(event.target)) {
+            close(panel.contains(document.activeElement));
+        }
+    });
+    tabs.forEach((tab, index) => {
+        tab.addEventListener("click", () => selectTab(tab));
+        tab.addEventListener("keydown", (event) => {
+            let target;
+            if (event.key === "ArrowRight") target = tabs[(index + 1) % tabs.length];
+            if (event.key === "ArrowLeft") target = tabs[(index - 1 + tabs.length) % tabs.length];
+            if (event.key === "Home") target = tabs[0];
+            if (event.key === "End") target = tabs[tabs.length - 1];
+            if (target) { event.preventDefault(); selectTab(target); target.focus(); }
+        });
+    });
+})();

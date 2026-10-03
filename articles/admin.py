@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 from .forms import ArticleAdminForm
-from .models import Article, Concept, Dossier, SocialPost
+from .models import Article, Concept, Dossier, SocialPost, SitePage
 
 
 class DossierArticleInline(admin.TabularInline):
@@ -264,3 +264,10 @@ class SocialPostAdmin(admin.ModelAdmin):
 admin.site.site_header = "Dergi Yönetimi"
 admin.site.site_title = "Dergi Admin"
 admin.site.index_title = "İçerik Yönetimi"
+
+@admin.register(SitePage)
+class SitePageAdmin(admin.ModelAdmin):
+    list_display = ("title", "is_published", "order")
+    list_editable = ("is_published", "order")
+    prepopulated_fields = {"slug": ("title",)}
+    search_fields = ("title", "content")

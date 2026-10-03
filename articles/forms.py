@@ -51,6 +51,12 @@ class ArticleAdminForm(forms.ModelForm):
 
             self.initial["content"] = clean_html(html)
 
+    def clean(self):
+        cleaned = super().clean()
+        if cleaned.get("section") == Article.Section.DOSYA and not cleaned.get("dossier"):
+            self.add_error("dossier", "Dosya yazısı için bir dosya seçin. Önce Dosyalar bölümünden dosya oluşturabilirsiniz.")
+        return cleaned
+
     def clean_content(self):
         html = clean_html(
             self.cleaned_data["content"]

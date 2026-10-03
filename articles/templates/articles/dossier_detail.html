@@ -6,6 +6,7 @@
 
 {% block content %}
 
+    <a class="back-link" href="{% url 'articles:dossier_list' %}">← Dosya kütüphanesine dön</a>
     <article class="dossier-detail">
         <header class="dossier-hero">
             {% if dossier.cover %}
@@ -81,18 +82,25 @@
                 </div>
             </div>
 
-            <div class="article-grid">
+            <ol class="dossier-contents" start="{{ page_obj.start_index }}">
                 {% for article in page_obj %}
-                    {% include "articles/_article_card.html" %}
+                    <li>
+                        <a href="{% url 'articles:detail' article.slug %}">
+                            <span class="eyebrow">{{ article.get_section_display }}</span>
+                            <h3>{{ article.title }}</h3>
+                            <span>{{ article.author_name }} · {{ article.published_at|date:"j F Y" }}</span>
+                            {% if article.summary %}<p>{{ article.summary|truncatechars:180 }}</p>{% endif %}
+                        </a>
+                    </li>
                 {% empty %}
-                    <div class="dossier-empty">
+                    <li class="dossier-empty">
                         <h2>
                             Bu dosyada henüz yayımlanmış
                             yazı bulunmuyor.
                         </h2>
-                    </div>
+                    </li>
                 {% endfor %}
-            </div>
+            </ol>
 
             {% if page_obj.paginator.num_pages > 1 %}
                 <nav

@@ -1,3 +1,142 @@
-from django.test import TestCase
+from datetime import timedelta
+from tempfile import TemporaryDirectory
 
-# Create your tests here.
+from django.core.files.base import ContentFile
+from django.core.files.storage import FileSystemStorage
+from django.test import TestCase, override_settings
+from django.urls import reverse
+from django.utils import timezone
+
+from .checks import persistent_storage_check
+from .forms import ArticleAdminForm
+from .models import Article, Dossier, SitePage
+
+
+class MagazineTests(TestCase):
+    def article(self, slug, **kwargs):
+        defaults = dict(title=slug, author_name="Yazar", content="Metin",
+                        status=Article.Status.PUBLISHED)
+        defaults.update(kwargs)
+        return Article.objects.create(slug=slug, **defaults)
+
+    def test_slider_shows_latest_five_without_feature_flag(self):
+        for index in range(7):
+            self.article(f"yazi-{index}", cover=f"covers/{index}.jpg")
+        self.article("taslak", status=Article.Status.DRAFT)
+        self.article("gelecek", published_at=timezone.now() + timedelta(days=1))
+        response = self.client.get(reverse("articles:home"))
+        self.assertEqual([a.slug for a in response.context["featured"]],
+                         [f"yazi-{i}" for i in range(6, 1, -1)])
+        self.assertContains(response, "data-slide\n", count=5)
+        self.assertContains(response, "/media/covers/6.jpg")
+        self.assertNotContains(response, "gelecek")
+        self.assertNotContains(response, "taslak")
+
+    def test_slider_single_and_empty_states(self):
+        response = self.client.get(reverse("articles:home"))
+        self.assertContains(response, "Yeni fikirler burada buluşacak.")
+        self.article("tek")
+        response = self.client.get(reverse("articles:home"))
+        self.assertEqual(len(response.context["featured"]), 1)
+        self.assertNotContains(response, "data-next")
+
+    def test_section_filter_is_preserved(self):
+        self.article("ceviri", section=Article.Section.CEVIRI)
+        self.article("yorum", section=Article.Section.TARTISMA)
+        response = self.client.get(reverse("articles:home"), {"bolum": "ceviri"})
+        self.assertEqual([a.slug for a in response.context["featured"]], ["ceviri"])
+
+    def test_library_lists_dossiers_and_only_their_published_contents(self):
+        dossier = Dossier.objects.create(title="Emek", slug="emek", status="published")
+        other = Dossier.objects.create(title="Kent", slug="kent", status="published")
+        Dossier.objects.create(title="Gizli dosya", slug="gizli")
+        self.article("ikinci", dossier=dossier, dossier_order=2)
+        self.article("ilk", dossier=dossier, dossier_order=1, section="ceviri")
+        self.article("taslak", dossier=dossier, status="draft")
+        self.article("gelecek", dossier=dossier, published_at=timezone.now()+timedelta(days=1))
+        self.article("baska", dossier=other)
+        index = self.client.get(reverse("articles:dossier_list"))
+        self.assertContains(index, "Emek")
+        self.assertContains(index, "2\n                    yazı")
+        self.assertNotContains(index, "Gizli dosya")
+        detail = self.client.get(reverse("articles:dossier_detail", args=["emek"]))
+        self.assertEqual([a.slug for a in detail.context["page_obj"]], ["ilk", "ikinci"])
+        self.assertContains(detail, 'class="dossier-contents"')
+        self.assertNotContains(detail, "baska")
+        self.assertEqual(self.client.get(reverse("articles:dossier_detail", args=["gizli"])).status_code, 404)
+
+    def test_dossier_article_admin_requires_a_folder(self):
+        data = dict(title="Yazı", slug="yazi", author_name="Yazar", content="<p>Metin</p>",
+                    section="dosya", status="draft", dossier_order=0)
+        form = ArticleAdminForm(data=data)
+        self.assertFalse(form.is_valid())
+        self.assertIn("dossier", form.errors)
+        dossier = Dossier.objects.create(title="Emek", slug="emek")
+        data["dossier"] = dossier.pk
+        self.assertTrue(ArticleAdminForm(data=data).is_valid())
+
+    def test_institutional_pages_are_editable_and_escaped(self):
+        page = SitePage.objects.get(slug="hakkimizda")
+        page.content = "Bizim dergimiz.\n\n<script>alert(1)</script>"
+        page.save()
+        response = self.client.get(reverse("articles:site_page", args=[page.slug]))
+        self.assertContains(response, "Bizim dergimiz.")
+        self.assertNotContains(response, "<script>alert(1)</script>")
+        self.assertContains(self.client.get(reverse("articles:home")), "Künye")
+        page.is_published = False
+        page.save()
+        self.assertEqual(self.client.get(reverse("articles:site_page", args=[page.slug])).status_code, 404)
+        self.assertNotContains(self.client.get(reverse("articles:home")), "/kurumsal/hakkimizda/")
+
+    def test_media_can_be_read_by_a_new_storage_instance(self):
+        with TemporaryDirectory() as root:
+            with override_settings(MEDIA_ROOT=root):
+                article = self.article("kalici")
+                article.cover.save("cover.jpg", ContentFile(b"stored-file"))
+                article.refresh_from_db()
+                storage = FileSystemStorage(location=root)
+                with storage.open(article.cover.name) as saved:
+                    self.assertEqual(saved.read(), b"stored-file")
+
+
+class ProductionStorageTests(TestCase):
+    @override_settings(DEBUG=True)
+    def test_local_development_does_not_require_external_storage(self):
+        self.assertEqual(persistent_storage_check(None), [])
+
+    @override_settings(DEBUG=False, SQLITE_STORAGE_PERSISTENT=False, MEDIA_STORAGE_PERSISTENT=False)
+    def test_ephemeral_database_and_media_are_rejected(self):
+        self.assertEqual({e.id for e in persistent_storage_check(None)},
+                         {"articles.E001", "articles.E002"})
+
+    @override_settings(DEBUG=False, SQLITE_STORAGE_PERSISTENT=True, MEDIA_STORAGE_PERSISTENT=True)
+    def test_explicit_persistent_volumes_are_supported(self):
+        self.assertEqual(persistent_storage_check(None), [])
+
+    @override_settings(DEBUG=False,
+        DATABASES={"default": {"ENGINE": "django.db.backends.postgresql"}},
+        STORAGES={"default": {"BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage"}})
+    def test_external_database_and_cloudinary_are_supported(self):
+        self.assertEqual(persistent_storage_check(None), [])
+
+
+class SocialPanelTests(TestCase):
+    def test_latest_active_posts_are_grouped_by_platform(self):
+        from .models import SocialPost
+        for i in range(7):
+            SocialPost.objects.create(platform="x", title=f"Paylaşım {i}",
+                                      url=f"https://x.com/example/status/{i}", order=7-i)
+        SocialPost.objects.create(platform="x", title="Gizli paylaşım", url="https://x.com/example/status/8", is_active=False)
+        SocialPost.objects.create(platform="instagram", title="Instagram yazısı", url="https://www.instagram.com/p/example/")
+        response = self.client.get(reverse("articles:home"))
+        groups = response.context["social_groups"]
+        self.assertEqual([g["key"] for g in groups], ["x", "instagram"])
+        self.assertEqual([p.title for p in groups[0]["posts"]], [f"Paylaşım {i}" for i in range(6, 1, -1)])
+        self.assertContains(response, "Instagram yazısı")
+        self.assertNotContains(response, "Gizli paylaşım")
+        self.assertContains(response, 'id="social-launcher"')
+
+    def test_empty_feeds_offer_profile_links(self):
+        response = self.client.get(reverse("articles:home"))
+        self.assertContains(response, "Henüz paylaşım eklenmedi.", count=2)
+        self.assertContains(response, "Instagram hesabına git")

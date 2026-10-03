@@ -10,14 +10,14 @@
     {% endif %}
 
     {% if featured %}
+        {% if not section_title %}
+            <h1 class="slider-heading">Yeni fikirler burada buluşacak.</h1>
+        {% endif %}
         <section class="featured-slider"
                  data-slider
                  data-autoplay="6000"
-                 aria-label="Öne çıkan yazılar"
+                 aria-label="Son eklenen beş yazı"
                  aria-roledescription="karusel">
-            {% if not section_title %}
-                <h1 class="sr-only">Dergi manşetleri</h1>
-            {% endif %}
 
             <div class="slider-track" aria-live="off">
                 {% for article in featured %}
@@ -37,7 +37,7 @@
                             <div class="hero-placeholder" aria-hidden="true"></div>
                         {% endif %}
 
-                        <div class="hero-overlay" aria-hidden="true"></div>
+
 
                         <div class="hero-content">
                             <span class="eyebrow">{{ article.get_section_display }}</span>

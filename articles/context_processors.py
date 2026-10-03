@@ -10,11 +10,11 @@ def social_media(request):
 
     groups = []
 
-    for platform, label in SocialPost.Platform.choices:
+    for platform, label in [(SocialPost.Platform.X, "X"), (SocialPost.Platform.INSTAGRAM, "Instagram")]:
         posts = SocialPost.objects.filter(
             platform=platform,
             is_active=True,
-        )[:10]
+        ).order_by("-created_at", "-id")[:5]
 
         groups.append({
             "key": platform,
@@ -24,3 +24,7 @@ def social_media(request):
         })
 
     return {"social_groups": groups}
+
+def institutional_pages(request):
+    from .models import SitePage
+    return {"institutional_pages": SitePage.objects.filter(is_published=True)}

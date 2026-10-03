@@ -103,6 +103,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 "articles.context_processors.social_media",
+                "articles.context_processors.institutional_pages",
             ],
         },
     },
@@ -128,7 +129,7 @@ else:
     DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.sqlite3",
-            "NAME": BASE_DIR / "db.sqlite3",
+            "NAME": Path(os.environ.get("SQLITE_PATH", BASE_DIR / "db.sqlite3")),
         }
     }
 
@@ -177,7 +178,10 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 MEDIA_URL = "/media/"
-MEDIA_ROOT = BASE_DIR / "media"
+MEDIA_ROOT = Path(os.environ.get("MEDIA_ROOT", BASE_DIR / "media"))
+# Set only when MEDIA_ROOT is an actual persistent volume in production.
+MEDIA_STORAGE_PERSISTENT = os.environ.get("MEDIA_STORAGE_PERSISTENT", "False").lower() == "true"
+SQLITE_STORAGE_PERSISTENT = os.environ.get("SQLITE_STORAGE_PERSISTENT", "False").lower() == "true"
 
 STORAGES = {
     "default": {

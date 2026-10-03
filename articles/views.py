@@ -4,7 +4,7 @@ from django.shortcuts import get_object_or_404, render
 from django.utils import timezone
 
 from .archive_forms import ArchiveFilterForm
-from .models import Article, Concept, Dossier
+from .models import Article, Concept, Dossier, SitePage
 
 
 def published_articles():
@@ -70,16 +70,7 @@ def home(request):
             Article.Section(section).label
         )
 
-    featured = list(
-        published.filter(
-            is_featured=True,
-        )[:5]
-    )
-
-    if not featured:
-        featured = list(
-            published[:1]
-        )
+    featured = list(published.order_by("-created_at", "-id")[:5])
 
     latest = published.exclude(
         pk__in=[
@@ -284,3 +275,7 @@ def article_detail(request, slug):
             "related_articles": related_articles,
         },
     )
+
+def site_page(request, slug):
+    page = get_object_or_404(SitePage, slug=slug, is_published=True)
+    return render(request, "articles/site_page.html", {"page": page})

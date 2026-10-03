@@ -54,6 +54,9 @@
                     <a href="{% url 'articles:home' %}?bolum=tartisma">Tartışma</a>
                     <a href="{% url 'articles:home' %}#kavramlar">Kavramlar</a>
                     <a href="{% url 'articles:archive' %}">Tüm Yazılar</a>
+                    {% for page in institutional_pages %}
+                        <a href="{% url 'articles:site_page' page.slug %}">{{ page.title }}</a>
+                    {% endfor %}
                 </nav>
 
                 <form class="header-search"
@@ -86,12 +89,17 @@
             </div>
             <div class="footer-links" aria-label="Alt menü">
                 <a href="{% url 'articles:archive' %}">Tüm Yazılar</a>
+                    {% for page in institutional_pages %}
+                        <a href="{% url 'articles:site_page' page.slug %}">{{ page.title }}</a>
+                    {% endfor %}
                 <a href="https://x.com/yeniyasamnews5" target="_blank" rel="noopener noreferrer">X</a>
                 <a href="https://www.instagram.com/yeniyasamgazetesi/" target="_blank" rel="noopener noreferrer">Instagram</a>
                 <a href="https://www.youtube.com/@yeniyasammedia" target="_blank" rel="noopener noreferrer">YouTube</a>
             </div>
         </div>
     </footer>
+
+    {% include "articles/social_panel.html" %}
 
     <script src="{% static 'articles/js/main.js' %}" defer></script>
 </body>

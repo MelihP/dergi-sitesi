@@ -343,3 +343,20 @@ class SocialPost(models.Model):
             f"{self.get_platform_display()} — "
             f"{self.title}"
         )
+
+class SitePage(models.Model):
+    title = models.CharField("Başlık", max_length=200)
+    slug = models.SlugField("Adres kısa adı", unique=True)
+    intro = models.TextField("Giriş metni", blank=True)
+    content = models.TextField("Sayfa metni", blank=True,
+                               help_text="Paragrafları boş satırla ayırın.")
+    is_published = models.BooleanField("Yayında", default=True)
+    order = models.PositiveIntegerField("Menü sırası", default=0)
+
+    class Meta:
+        ordering = ["order", "title"]
+        verbose_name = "Kurumsal sayfa"
+        verbose_name_plural = "Kurumsal sayfalar"
+
+    def __str__(self):
+        return self.title

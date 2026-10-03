@@ -7,6 +7,7 @@ app_name = "articles"
 
 
 urlpatterns = [
+    path("kurumsal/<slug:slug>/", views.site_page, name="site_page"),
     path(
         "",
         views.home,

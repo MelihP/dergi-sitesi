@@ -1,0 +1,16 @@
+{% extends "articles/base.html" %}
+{% block title %}{{ page.title }} | Dergi{% endblock %}
+{% block content %}
+<article class="reading institutional-page">
+    <header class="article-header">
+        <span class="eyebrow">DERGİ HAKKINDA</span>
+        <h1>{{ page.title }}</h1>
+        {% if page.intro %}<p class="article-summary">{{ page.intro }}</p>{% endif %}
+    </header>
+    <div class="article-text">
+        {% if page.content %}{{ page.content|linebreaks }}{% else %}
+            <p>Bu sayfanın içeriği hazırlanıyor.</p>
+        {% endif %}
+    </div>
+</article>
+{% endblock %}

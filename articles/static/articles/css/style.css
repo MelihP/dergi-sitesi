@@ -1564,3 +1564,88 @@ select:focus-visible {
         display: none;
     }
 }
+/* Keep the entire cover visible, with the title outside the image. */
+.slider-heading { font-size: clamp(26px, 4vw, 44px); margin: 0 0 24px; }
+.featured-slider .hero {
+    min-height: 0;
+    padding: 0;
+    background: #242322;
+    display: grid;
+    grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+    align-items: stretch;
+}
+.featured-slider .hero[hidden] { display: none; }
+.featured-slider .hero-image,
+.featured-slider .hero-placeholder {
+    position: relative;
+    z-index: auto;
+    height: clamp(300px, 40vw, 520px);
+    object-fit: contain;
+    background-color: #191918;
+}
+.featured-slider .hero-content { padding: clamp(24px, 4vw, 52px); align-self: center; }
+.featured-slider .hero h2 { font-size: clamp(28px, 3.4vw, 48px); max-width: none; }
+.featured-slider .hero p { font-size: 17px; }
+.dossier-index .dossier-grid { gap: 28px; padding-bottom: 26px; border-bottom: 8px solid #b8afa1; }
+.dossier-index .dossier-card { border-left: 7px solid #485e60; border-radius: 3px; }
+.dossier-contents { padding-left: 28px; }
+.dossier-contents li { padding: 22px 16px; border-bottom: 1px solid #d6d1c9; }
+.dossier-contents a { display: block; color: inherit; text-decoration: none; }
+.dossier-contents a:hover h3 { text-decoration: underline; }
+.dossier-contents h3 { margin: 10px 0; font-size: clamp(22px, 3vw, 30px); }
+.dossier-contents p { line-height: 1.6; }
+.main-nav { flex-wrap: wrap; }
+@media (max-width: 700px) {
+    .featured-slider .hero { grid-template-columns: 1fr; }
+    .featured-slider .hero-image, .featured-slider .hero-placeholder { height: 300px; }
+}
+
+.featured-slider .hero .eyebrow { color: #efaa91; }
+
+.social-launcher {
+    position: fixed;
+    right: max(20px, env(safe-area-inset-right));
+    bottom: max(20px, env(safe-area-inset-bottom));
+    width: 60px;
+    height: 60px;
+    border: 0;
+    border-radius: 50%;
+    background: var(--accent-dark);
+    color: #fff;
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+    box-shadow: 0 6px 22px #0003;
+    z-index: 100;
+    transition: transform 180ms ease, background 180ms ease;
+}
+.social-launcher:hover { background: var(--accent); transform: translateY(-3px); }
+.social-panel {
+    position: fixed;
+    right: max(20px, env(safe-area-inset-right));
+    bottom: calc(max(20px, env(safe-area-inset-bottom)) + 74px);
+    width: min(360px, calc(100vw - 40px));
+    max-height: calc(100dvh - 124px);
+    display: flex;
+    flex-direction: column;
+    background: var(--surface-strong);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    box-shadow: 0 12px 45px #0003;
+    z-index: 101;
+    overflow: hidden;
+}
+.social-panel-header { display: flex; align-items: center; justify-content: space-between; padding: 18px 20px; gap: 12px; }
+.social-panel-header h2 { margin: 6px 0 0; font-size: 25px; }
+.social-close { border: 0; background: transparent; cursor: pointer; font-size: 28px; width: 44px; height: 44px; color: var(--text); }
+.social-tabs { display: flex; padding: 0 20px; gap: 12px; border-bottom: 1px solid var(--border); }
+.social-tab { background: transparent; border: 0; border-bottom: 3px solid transparent; padding: 12px; cursor: pointer; font-weight: bold; color: var(--muted); }
+.social-tab[aria-selected="true"] { color: var(--accent-dark); border-bottom-color: var(--accent-dark); }
+.social-panel-body { overflow-y: auto; overscroll-behavior: contain; padding: 16px 20px; min-height: 0; }
+.social-post { padding: 0 0 16px; margin-bottom: 16px; border-bottom: 1px solid var(--border); }
+.social-post-image { width: 100%; max-height: 180px; object-fit: contain; background: var(--bg); border-radius: 6px; }
+.social-post h3 { margin: 12px 0 8px; font-size: 20px; overflow-wrap: anywhere; }
+.social-post p { font-size: 14px; margin: 0 0 8px; }
+.social-post-action, .social-profile-link { font-size: 13px; font-weight: bold; color: var(--accent-dark); }
+.social-empty { color: var(--muted); font-size: 14px; }
+@media (prefers-reduced-motion: reduce) { .social-launcher { transition: none; } }

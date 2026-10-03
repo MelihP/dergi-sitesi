@@ -3,20 +3,25 @@
     class="social-launcher"
     id="social-launcher"
     aria-controls="social-panel"
-    aria-expanded="false">
-    Sosyal Medya
+    aria-expanded="false"
+    aria-label="Son sosyal medya paylaşımlarını aç">
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+        <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
+        <path d="m8.6 10.5 6.8-4M8.6 13.5l6.8 4"/>
+    </svg>
 </button>
 
 <section
     class="social-panel"
     id="social-panel"
+    role="region"
     aria-labelledby="social-panel-title"
     hidden>
 
     <header class="social-panel-header">
         <div>
             <span class="eyebrow">Dergi</span>
-            <h2 id="social-panel-title">Son İçerikler</h2>
+            <h2 id="social-panel-title">Son Paylaşımlar</h2>
         </div>
 
         <button
