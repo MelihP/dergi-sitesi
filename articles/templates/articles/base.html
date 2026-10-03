@@ -52,7 +52,7 @@
                     <a href="{% url 'articles:dossier_list' %}">Dosyalar</a>
                     <a href="{% url 'articles:home' %}?bolum=ceviri">Çeviri</a>
                     <a href="{% url 'articles:home' %}?bolum=tartisma">Tartışma</a>
-                    <a href="{% url 'articles:home' %}#kavramlar">Kavramlar</a>
+                    <a href="{% url 'articles:concept_dictionary' %}">Kavramlar</a>
                     <a href="{% url 'articles:archive' %}">Tüm Yazılar</a>
                     {% for page in institutional_pages %}
                         <a href="{% url 'articles:site_page' page.slug %}">{{ page.title }}</a>

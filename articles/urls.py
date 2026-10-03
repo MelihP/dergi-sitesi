@@ -7,6 +7,7 @@ app_name = "articles"
 
 
 urlpatterns = [
+    path("kavramlar/", views.concept_dictionary, name="concept_dictionary"),
     path("kurumsal/<slug:slug>/", views.site_page, name="site_page"),
     path(
         "",

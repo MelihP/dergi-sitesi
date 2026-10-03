@@ -88,10 +88,11 @@ Bu çalışma canlı PostgreSQL/Cloudinary erişimi veya gerçek sunucuda yenide
 
 ## Yüzen sosyal medya paneli
 
-Sağ alttaki yuvarlak düğme bütün sayfalarda görünür. X ve Instagram sekmeleri,
+Sağ alttaki yuvarlak düğme bütün sayfalarda görünür. X, Instagram ve YouTube sekmeleri,
 **Sosyal medya gönderileri** yönetim bölümündeki son eklenen beş aktif gönderiyi gösterir.
 Başlık, açıklama, görsel ve gönderinin tam bağlantısını buradan ekleyin. Pasif gönderiler
-okurlara gösterilmez. Panel sosyal ağlardan otomatik veri çekmez; bunun için hesap yetkileri
+okurlara gösterilmez. YouTube için video bağlantısını ve isteğe bağlı kapak görselini ekleyebilirsiniz.
+Panel sosyal ağlardan otomatik veri çekmez; bunun için hesap yetkileri
 ve resmi API entegrasyonu gerekir. Mevcut profil bağlantıları Yeni Yaşam hesaplarıdır.
 
 
@@ -102,3 +103,12 @@ baş harfi gösterilir. Kitaba tıklayınca dosyanın içindekiler listesi açı
 dosyalar, kavramlar ve arşiv seçmeleri bu sayfalarda gösterilmez. Bölüm slider'ları
 yalnızca o bölümün son beş yazısını kullanır. Slider'daki yazılar bölümün sıralı
 yazı listesinde de yer alır; liste dokuzarlı sayfalanır.
+
+
+## Kavramlar sözlüğü
+
+Kavramlar menüsü `/kavramlar/` sayfasını açar. Türk alfabesindeki 29 harf listelenir;
+seçilen harfin aktif kavramları alfabetik sırayla ve açıklamalarıyla gösterilir.
+I ve İ ayrı harflerdir; Ç, Ğ, Ö, Ş ve Ü desteklenir. Kavramları yönetim panelindeki
+**Kavramlar** bölümünden ekleyin. Açıklamaları iki veya üç cümleyle yazabilirsiniz.
+Kavram yokken de harfler görünür; yeni kavramlar eklendiğinde sayımlar güncellenir.

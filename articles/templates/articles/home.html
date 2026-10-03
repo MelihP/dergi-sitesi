@@ -184,24 +184,13 @@
         </section>
     {% endif %}
 
-    {% if concepts %}
+    {% if dictionary %}
         <section class="articles-section" id="kavramlar">
             <div class="section-heading">
-                <div>
-                    <span class="eyebrow">KAVRAM SETİ</span>
-                    <h2>Kavramlar Sözlüğü</h2>
-                </div>
+                <div><span class="eyebrow">A’DAN Z’YE</span><h2>Kavramlar Sözlüğü</h2></div>
+                <a class="section-link" href="{% url 'articles:concept_dictionary' %}">Sözlüğü aç →</a>
             </div>
-
-            <div class="concept-grid">
-                {% for concept in concepts %}
-                    <article class="concept-card">
-                        <span class="concept-initial" aria-hidden="true">{{ concept.name|first }}</span>
-                        <h3>{{ concept.name }}</h3>
-                        <div class="concept-description">{{ concept.description|linebreaks }}</div>
-                    </article>
-                {% endfor %}
-            </div>
+            {% include "articles/_dictionary.html" %}
         </section>
     {% endif %}
 

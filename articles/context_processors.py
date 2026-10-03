@@ -10,7 +10,7 @@ def social_media(request):
 
     groups = []
 
-    for platform, label in [(SocialPost.Platform.X, "X"), (SocialPost.Platform.INSTAGRAM, "Instagram")]:
+    for platform, label in SocialPost.Platform.choices:
         posts = SocialPost.objects.filter(
             platform=platform,
             is_active=True,

@@ -109,7 +109,7 @@ class Article(models.Model):
     class Section(models.TextChoices):
         DOSYA = "dosya", "Dosya"
         CEVIRI = "ceviri", "Çeviri"
-        TARTISMA = "tartisma", "Tartışma ve Yorum"
+        TARTISMA = "tartisma", "Tartışma"
 
     title = models.CharField(
         "Başlık",

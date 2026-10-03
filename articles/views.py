@@ -1,3 +1,5 @@
+import unicodedata
+
 from django.core.paginator import Paginator
 from django.db.models import Count, Q
 from django.shortcuts import get_object_or_404, render, redirect
@@ -99,15 +101,13 @@ def home(request):
                 is_archive_pick=True,
             )[:6] if not section_title else Article.objects.none()
         ),
-        "concepts": (
-            Concept.objects.filter(
-                is_active=True,
-            )[:8] if not section_title else Concept.objects.none()
-        ),
         "section_title": section_title,
         "section": section if section_title else "",
         "section_page": section_page,
     }
+
+    if not section_title:
+        context["dictionary"] = dictionary_context("A")
 
     return render(
         request,
@@ -287,3 +287,37 @@ def site_page(request, slug):
     sections = (SitePage.objects.filter(slug__in=section_slugs, is_published=True)
                 if slug == "hakkimizda" else SitePage.objects.none())
     return render(request, "articles/site_page.html", {"page": page, "sections": sections})
+
+
+DICTIONARY_ALPHABET = "ABCÇDEFGĞHIİJKLMNOÖPRSŞTUÜVYZ"
+
+
+def turkish_upper(value):
+    return unicodedata.normalize("NFC", value.strip()).translate(str.maketrans({"i": "İ", "ı": "I"})).upper()
+
+
+def dictionary_context(letter):
+    selected = turkish_upper(letter)
+    if selected not in DICTIONARY_ALPHABET or len(selected) != 1:
+        selected = "A"
+    groups = {letter: [] for letter in DICTIONARY_ALPHABET}
+    for concept in Concept.objects.filter(is_active=True):
+        initial = turkish_upper(concept.name)[:1]
+        if initial in groups:
+            groups[initial].append(concept)
+    positions = {char: index for index, char in enumerate(DICTIONARY_ALPHABET)}
+    concepts = sorted(groups[selected], key=lambda concept: (
+        tuple(positions.get(char, len(positions)) for char in turkish_upper(concept.name)),
+        concept.name, concept.pk,
+    ))
+    return {
+        "selected_letter": selected,
+        "letters": [{"letter": char, "count": len(groups[char])} for char in DICTIONARY_ALPHABET],
+        "concepts": concepts,
+    }
+
+
+def concept_dictionary(request):
+    return render(request, "articles/concept_dictionary.html", {
+        "dictionary": dictionary_context(request.GET.get("harf", "A")),
+    })

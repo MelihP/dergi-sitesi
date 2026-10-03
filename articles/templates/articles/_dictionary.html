@@ -1,0 +1,30 @@
+<nav class="dictionary-alphabet" aria-label="Sözlük harfleri">
+    {% for item in dictionary.letters %}
+        <a class="dictionary-letter{% if item.letter == dictionary.selected_letter %} is-selected{% endif %}{% if not item.count %} is-empty{% endif %}"
+           href="{% url 'articles:concept_dictionary' %}?harf={{ item.letter|urlencode }}"
+           aria-label="{{ item.letter }} harfi, {{ item.count }} kavram"
+           {% if item.letter == dictionary.selected_letter %}aria-current="page"{% endif %}>
+            {{ item.letter }}<span>{{ item.count }}</span>
+        </a>
+    {% endfor %}
+</nav>
+<div class="dictionary-results-heading">
+    <h2>{{ dictionary.selected_letter }}</h2>
+    <span>{{ dictionary.concepts|length }} kavram</span>
+</div>
+{% if dictionary.concepts %}
+<dl class="dictionary-entries">
+    {% for concept in dictionary.concepts %}
+        <div class="dictionary-entry">
+            <dt>{{ concept.name }}</dt>
+            <dd>{{ concept.description|linebreaks }}</dd>
+        </div>
+    {% endfor %}
+</dl>
+{% else %}
+        <div class="dictionary-empty">
+            <p>{{ dictionary.selected_letter }} harfiyle başlayan bir kavram henüz eklenmedi.</p>
+            <p>Diğer harfleri seçerek sözlüğü keşfedebilirsiniz.</p>
+        </div>
+{% endif %}
+

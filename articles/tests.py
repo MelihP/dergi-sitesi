@@ -128,9 +128,11 @@ class SocialPanelTests(TestCase):
                                       url=f"https://x.com/example/status/{i}", order=7-i)
         SocialPost.objects.create(platform="x", title="Gizli paylaşım", url="https://x.com/example/status/8", is_active=False)
         SocialPost.objects.create(platform="instagram", title="Instagram yazısı", url="https://www.instagram.com/p/example/")
+        SocialPost.objects.create(platform="youtube", title="Yeni video", url="https://www.youtube.com/watch?v=example")
         response = self.client.get(reverse("articles:home"))
+        self.assertContains(response, "Yeni video")
         groups = response.context["social_groups"]
-        self.assertEqual([g["key"] for g in groups], ["x", "instagram"])
+        self.assertEqual([g["key"] for g in groups], ["x", "instagram", "youtube"])
         self.assertEqual([p.title for p in groups[0]["posts"]], [f"Paylaşım {i}" for i in range(6, 1, -1)])
         self.assertContains(response, "Instagram yazısı")
         self.assertNotContains(response, "Gizli paylaşım")
@@ -138,7 +140,7 @@ class SocialPanelTests(TestCase):
 
     def test_empty_feeds_offer_profile_links(self):
         response = self.client.get(reverse("articles:home"))
-        self.assertContains(response, "Henüz paylaşım eklenmedi.", count=2)
+        self.assertContains(response, "Henüz paylaşım eklenmedi.", count=3)
         self.assertContains(response, "Instagram hesabına git")
 
 
@@ -240,3 +242,45 @@ class SectionLandingTests(TestCase):
         self.assertEqual(len(response.context["articles"]), 1)
         self.assertEqual(len(response.context["featured"]), 5)
         self.assertContains(response, "bolum=ceviri&amp;sayfa=1")
+
+
+class DictionaryTests(TestCase):
+    def test_letter_filter_and_alphabetical_order(self):
+        Concept.objects.create(name="Anarşizm", description="Anarşizm açıklaması.", order=0)
+        Concept.objects.create(name="Adalet", description="Adalet açıklaması.", order=9)
+        Concept.objects.create(name="Bilinç", description="Bilinç açıklaması.")
+        Concept.objects.create(name="Aktif olmayan", description="Gizli tanım.", is_active=False)
+        response = self.client.get(reverse("articles:concept_dictionary"), {"harf": "a"})
+        dictionary = response.context["dictionary"]
+        self.assertEqual(dictionary["selected_letter"], "A")
+        self.assertEqual([c.name for c in dictionary["concepts"]], ["Adalet", "Anarşizm"])
+        self.assertEqual(len(dictionary["letters"]), 29)
+        self.assertNotContains(response, "Bilinç açıklaması.")
+        self.assertNotContains(response, "Gizli tanım.")
+        response = self.client.get(reverse("articles:concept_dictionary"), {"harf": "B"})
+        self.assertContains(response, "Bilinç açıklaması.")
+        self.assertNotContains(response, "Adalet açıklaması.")
+
+    def test_turkish_dotted_and_dotless_letters_are_distinct(self):
+        for name in ("İdeoloji", "İrade", "Işık", "ıslah", "ihtiyaç", "Çelişki", "Şuur"):
+            Concept.objects.create(name=name, description=f"{name} tanımı")
+        for letter, expected in [("i", ["İdeoloji", "ihtiyaç", "İrade"]), ("ı", ["ıslah", "Işık"]),
+                                 ("ç", ["Çelişki"]), ("ş", ["Şuur"])]:
+            with self.subTest(letter=letter):
+                response = self.client.get(reverse("articles:concept_dictionary"), {"harf": letter})
+                self.assertEqual([c.name for c in response.context["dictionary"]["concepts"]], expected)
+
+    def test_empty_letters_and_invalid_selection(self):
+        response = self.client.get(reverse("articles:concept_dictionary"), {"harf": "Z"})
+        self.assertContains(response, "Z harfiyle başlayan bir kavram henüz eklenmedi.")
+        response = self.client.get(reverse("articles:concept_dictionary"), {"harf": "invalid"})
+        self.assertEqual(response.context["dictionary"]["selected_letter"], "A")
+        self.assertContains(self.client.get(reverse("articles:home")), 'class="dictionary-alphabet"')
+
+    def test_discussion_label_is_shortened_everywhere(self):
+        article = Article.objects.create(title="Bir tartışma", slug="bir-tartisma", author_name="Yazar",
+                                         content="Metin", section="tartisma", status="published")
+        self.assertEqual(article.get_section_display(), "Tartışma")
+        response = self.client.get(reverse("articles:home"), {"bolum": "tartisma"})
+        self.assertEqual(response.context["section_title"], "Tartışma")
+        self.assertNotContains(response, "Tartışma ve Yorum")

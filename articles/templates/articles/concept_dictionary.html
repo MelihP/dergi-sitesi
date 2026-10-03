@@ -1,0 +1,12 @@
+{% extends "articles/base.html" %}
+{% block title %}Kavramlar Sözlüğü | Dergi{% endblock %}
+{% block content %}
+<section class="dictionary-page" id="kavramlar">
+    <header class="dictionary-header">
+        <span class="eyebrow">A’DAN Z’YE</span>
+        <h1>Kavramlar Sözlüğü</h1>
+        <p>Bir harf seçin, kavramları kısa açıklamalarıyla keşfedin.</p>
+    </header>
+    {% include "articles/_dictionary.html" %}
+</section>
+{% endblock %}

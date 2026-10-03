@@ -187,6 +187,12 @@ class ArticleAdmin(admin.ModelAdmin):
 
 @admin.register(Concept)
 class ConceptAdmin(admin.ModelAdmin):
+    def get_form(self, request, obj=None, **kwargs):
+        form = super().get_form(request, obj, **kwargs)
+        if "description" in form.base_fields:
+            form.base_fields["description"].help_text = "Kavramı iki veya üç cümleyle açıklayın. Sözlükte kavramlar harflerine göre sıralanır."
+        return form
+
     list_display = (
         "name",
         "order",
