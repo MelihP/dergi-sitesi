@@ -1,5 +1,7 @@
 {% extends "articles/base.html" %}
 
+{% block title %}{% if section_title %}{{ section_title }} | {% endif %}Dergi{% endblock %}
+
 {% block content %}
 
     {% if section_title %}
@@ -102,7 +104,7 @@
                 </div>
                 <div class="hero-content">
                     <span class="eyebrow">SON YAZILAR</span>
-                    <h2>Yeni fikirler burada buluşacak.</h2>
+                    <h2>{% if section_title %}{{ section_title }} yazıları burada yer alacak.{% else %}Yeni fikirler burada buluşacak.{% endif %}</h2>
                     <p>Bu bölümde henüz yayımlanmış yazı bulunmuyor.</p>
                 </div>
             </article>
@@ -144,9 +146,9 @@
             <div class="section-heading">
                 <div>
                     <span class="eyebrow">GÜNCEL</span>
-                    <h2>Son Yazılar</h2>
+                    <h2>{% if section_title %}{{ section_title }} Yazıları{% else %}Son Yazılar{% endif %}</h2>
                 </div>
-                <a class="section-link" href="{% url 'articles:archive' %}">Tümünü gör →</a>
+                <a class="section-link" href="{% url 'articles:archive' %}{% if section %}?bolum={{ section }}{% endif %}">Tümünü gör →</a>
             </div>
 
             <div class="article-grid">
@@ -155,6 +157,14 @@
                 {% endfor %}
             </div>
         </section>
+    {% endif %}
+
+    {% if section_page.paginator.num_pages > 1 %}
+        <nav class="pagination" aria-label="{{ section_title }} yazıları sayfaları">
+            {% if section_page.has_previous %}<a href="?bolum={{ section }}&amp;sayfa={{ section_page.previous_page_number }}">← Önceki</a>{% endif %}
+            <span>Sayfa {{ section_page.number }} / {{ section_page.paginator.num_pages }}</span>
+            {% if section_page.has_next %}<a href="?bolum={{ section }}&amp;sayfa={{ section_page.next_page_number }}">Sonraki →</a>{% endif %}
+        </nav>
     {% endif %}
 
     {% if archive_articles %}

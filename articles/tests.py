@@ -9,7 +9,7 @@ from django.utils import timezone
 
 from .checks import persistent_storage_check
 from .forms import ArticleAdminForm
-from .models import Article, Dossier, SitePage
+from .models import Article, Concept, Dossier, SitePage
 
 
 class MagazineTests(TestCase):
@@ -186,7 +186,7 @@ class DossierEditorTests(TestCase):
         self.assertContains(home, "data-slider")
         self.assertContains(home, "data-next")
         library = self.client.get(reverse("articles:dossier_list"))
-        self.assertContains(library, "dossier-folder-card")
+        self.assertContains(library, "dossier-book")
         self.assertContains(library, "2 yazı")
 
     def test_admin_explains_folder_workflow_and_has_editable_article_fields(self):
@@ -201,3 +201,42 @@ class DossierEditorTests(TestCase):
         self.assertContains(response, 'class="featured-slider"')
         self.assertContains(response, 'class="hero slider-empty"')
         self.assertNotContains(response, "data-slide\n")
+
+
+class SectionLandingTests(TestCase):
+    def test_translation_and_discussion_only_show_their_own_articles(self):
+        dossier = Dossier.objects.create(title="Dosya başlığı", slug="dosya", status="published")
+        Concept.objects.create(name="Özel kavram", description="Kavram metni")
+        for section in ("ceviri", "tartisma"):
+            for i in range(6):
+                Article.objects.create(title=f"{section} yazısı {i}", slug=f"{section}-{i}",
+                    author_name="Yazar", content="İçerik", section=section, status="published", dossier=dossier,
+                    is_archive_pick=True)
+        for section in ("ceviri", "tartisma"):
+            with self.subTest(section=section):
+                response = self.client.get(reverse("articles:home"), {"bolum": section})
+                self.assertEqual(len(response.context["featured"]), 5)
+                self.assertTrue(all(a.section == section for a in response.context["featured"]))
+                self.assertEqual(len(response.context["articles"]), 6)
+                self.assertTrue(all(a.section == section for a in response.context["articles"]))
+                self.assertEqual(list(response.context["dossiers"]), [])
+                self.assertNotContains(response, 'class="dossier-book"')
+                self.assertNotContains(response, "Öne Çıkan Dosyalar")
+                self.assertNotContains(response, "Özel kavram")
+                self.assertNotContains(response, "Arşivden Seçmeler")
+                other = "ceviri" if section == "tartisma" else "tartisma"
+                self.assertNotContains(response, f"{other} yazısı")
+                self.assertContains(response, f"?bolum={section}")
+                self.assertEqual([a.slug for a in response.context["articles"]],
+                                 [f"{section}-{i}" for i in range(5, -1, -1)])
+        self.assertContains(self.client.get(reverse("articles:home")), 'class="dossier-book"')
+
+    def test_section_pagination_keeps_filter_and_slider(self):
+        for i in range(10):
+            Article.objects.create(title=f"Çeviri {i}", slug=f"translation-{i}", section="ceviri",
+                author_name="Yazar", content="Metin", status="published")
+        response = self.client.get(reverse("articles:home"), {"bolum": "ceviri", "sayfa": 2})
+        self.assertEqual(response.context["section_page"].number, 2)
+        self.assertEqual(len(response.context["articles"]), 1)
+        self.assertEqual(len(response.context["featured"]), 5)
+        self.assertContains(response, "bolum=ceviri&amp;sayfa=1")

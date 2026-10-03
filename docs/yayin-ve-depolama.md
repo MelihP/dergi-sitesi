@@ -93,3 +93,12 @@ Sağ alttaki yuvarlak düğme bütün sayfalarda görünür. X ve Instagram sekm
 Başlık, açıklama, görsel ve gönderinin tam bağlantısını buradan ekleyin. Pasif gönderiler
 okurlara gösterilmez. Panel sosyal ağlardan otomatik veri çekmez; bunun için hesap yetkileri
 ve resmi API entegrasyonu gerekir. Mevcut profil bağlantıları Yeni Yaşam hesaplarıdır.
+
+
+Dosyalar, ana sayfada ve dosya kütüphanesinde yan yana kitap kapakları olarak gösterilir.
+Kapak görseli varsa kitabın yüzünde kullanılır; yoksa renkli bir kapak, başlık ve dosyanın
+baş harfi gösterilir. Kitaba tıklayınca dosyanın içindekiler listesi açılır.
+Çeviri ve Tartışma sayfaları yalnızca kendi bölümündeki yayımlanmış yazıları içerir;
+dosyalar, kavramlar ve arşiv seçmeleri bu sayfalarda gösterilmez. Bölüm slider'ları
+yalnızca o bölümün son beş yazısını kullanır. Slider'daki yazılar bölümün sıralı
+yazı listesinde de yer alır; liste dokuzarlı sayfalanır.

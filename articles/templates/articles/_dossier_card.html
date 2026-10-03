@@ -1,17 +1,18 @@
-<article class="dossier-folder-card">
-    <a class="dossier-folder-link" href="{% url 'articles:dossier_detail' dossier.slug %}">
-        <div class="dossier-folder-art" aria-hidden="true">
-            <svg viewBox="0 0 80 64" fill="currentColor"><path d="M4 8h25l8 8h39v42H4z"/></svg>
-            {% if dossier.cover %}<img src="{{ dossier.cover.url }}" alt="" loading="lazy">{% endif %}
-        </div>
-        <div class="dossier-folder-body">
-            <span class="eyebrow">DOSYA KÜTÜPHANESİ</span>
-            <h3>{{ dossier.title }}</h3>
-            {% if dossier.summary %}<p>{{ dossier.summary|truncatechars:140 }}</p>{% endif %}
-            <div class="dossier-folder-meta">
-                <span>{{ dossier.published_article_count }} yazı</span>
-                <span class="dossier-card-action">Dosyayı aç →</span>
+<article class="dossier-book">
+    <a class="dossier-book-link" href="{% url 'articles:dossier_detail' dossier.slug %}">
+        <div class="dossier-book-cover">
+            {% if dossier.cover %}
+                <img class="dossier-book-image" src="{{ dossier.cover.url }}" alt="" loading="lazy">
+            {% else %}
+                <span class="dossier-book-letter" aria-hidden="true">{{ dossier.title|first }}</span>
+            {% endif %}
+            <div class="dossier-book-shade" aria-hidden="true"></div>
+            <div class="dossier-book-title">
+                <span class="eyebrow">DERGİ DOSYASI</span>
+                <h3>{{ dossier.title }}</h3>
+                <span class="dossier-book-count">{{ dossier.published_article_count }} yazı</span>
             </div>
         </div>
+        <span class="dossier-book-open">Dosyayı aç →</span>
     </a>
 </article>

@@ -80,16 +80,15 @@ def home(request):
         ]
     )[:9]
 
-    dossiers = list(
-        published_dossiers().filter(
-            is_featured=True,
-        )[:3]
-    )
-
-    if not dossiers:
-        dossiers = list(
-            published_dossiers()[:3]
-        )
+    section_page = None
+    dossiers = []
+    if section_title:
+        section_page = Paginator(published, 9).get_page(request.GET.get("sayfa"))
+        latest = section_page
+    else:
+        dossiers = list(published_dossiers().filter(is_featured=True)[:3])
+        if not dossiers:
+            dossiers = list(published_dossiers()[:3])
 
     context = {
         "featured": featured,
@@ -98,14 +97,16 @@ def home(request):
         "archive_articles": (
             published.filter(
                 is_archive_pick=True,
-            )[:6]
+            )[:6] if not section_title else Article.objects.none()
         ),
         "concepts": (
             Concept.objects.filter(
                 is_active=True,
-            )[:8]
+            )[:8] if not section_title else Concept.objects.none()
         ),
         "section_title": section_title,
+        "section": section if section_title else "",
+        "section_page": section_page,
     }
 
     return render(
