@@ -3,9 +3,9 @@ from .models import SocialPost
 
 def social_media(request):
     profile_urls = {
-        "x": "https://x.com/yeniyasamnews5",
-        "instagram": "https://www.instagram.com/yeniyasamgazetesi/",
-        "youtube": "https://www.youtube.com/@yeniyasammedia",
+        "x": "https://x.com/baskamedyainfo",
+        "instagram": "https://www.instagram.com/baskamedyainfo/",
+        "youtube": "https://www.youtube.com/@baskamedya",
     }
 
     groups = []
