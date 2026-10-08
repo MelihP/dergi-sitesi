@@ -53,4 +53,12 @@ def render_content(article):
         )
         html = clean_html(html)
 
-    return mark_safe(html)
+    # Pasted documents may use non-breaking spaces between every word.
+    # Normalize text nodes only, preserving markup and link attributes.
+    soup = BeautifulSoup(html, "html.parser")
+    for node in soup.find_all(string=True):
+        normalized = str(node).replace("\u00a0", " ").replace("\u202f", " ")
+        if normalized != str(node):
+            node.replace_with(normalized)
+
+    return mark_safe(str(soup))

@@ -285,3 +285,16 @@ class DictionaryTests(TestCase):
         response = self.client.get(reverse("articles:home"), {"bolum": "tartisma"})
         self.assertEqual(response.context["section_title"], "Tartışma")
         self.assertNotContains(response, "Tartışma ve Yorum")
+
+
+class ArticleWrappingTests(TestCase):
+    def test_pasted_nonbreaking_spaces_wrap_without_losing_formatting(self):
+        article = Article(content_html='<p>Bir&nbsp;<strong>uzun\u00a0yazı</strong>\u202fmetni.</p>')
+        self.assertEqual(str(article.formatted_content), '<p>Bir <strong>uzun yazı</strong> metni.</p>')
+        self.assertIn('&nbsp;', article.content_html)
+
+    def test_plain_text_nonbreaking_spaces_are_also_normalized(self):
+        article = Article(content='Bir\u00a0yazı\u202fmetni.\n\nİkinci paragraf.')
+        html = str(article.formatted_content)
+        self.assertIn('<p>Bir yazı metni.</p>', html)
+        self.assertIn('<p>İkinci paragraf.</p>', html)

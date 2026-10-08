@@ -1794,7 +1794,19 @@ select:focus-visible {
 .featured-slider .slider-dots button { position: relative; }
 .featured-slider .slider-dots button::before { content: ""; position: absolute; inset: -19px 0; }
 .featured-slider .hero { padding-bottom: 110px; }
-.article-text { word-break: normal; overflow-wrap: normal; hyphens: auto; line-break: strict; }
+.article-text {
+    width: 100%;
+    min-width: 0;
+    white-space: normal;
+    word-break: normal;
+    overflow-wrap: anywhere;
+    hyphens: auto;
+    line-break: strict;
+}
+.article-text :where(p, h2, h3, li, blockquote, span, strong, em, a) {
+    white-space: normal;
+    overflow-wrap: anywhere;
+}
 .article-text a { overflow-wrap: anywhere; hyphens: none; }
 @media (max-width: 680px) {
     .home-page .featured-slider .hero { padding: 200px 24px 145px; }
