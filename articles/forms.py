@@ -23,6 +23,9 @@ class ArticleAdminForm(forms.ModelForm):
     class Meta:
         model = Article
         fields = "__all__"
+        help_texts = {
+            "cover": "Tam ekran manşet için en az 1920 × 1080 piksel, tercihen 2560 × 1440 piksel yatay fotoğraf yükleyin. Küçük fotoğraflar büyütüldüğünde bulanık görünür.",
+        }
 
     class Media:
         css = {

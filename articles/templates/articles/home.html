@@ -2,22 +2,15 @@
 
 {% block title %}{% if section_title %}{{ section_title }} | {% endif %}Dergi{% endblock %}
 
-{% block body_class %}{% if not section_title %}home-page{% endif %}{% endblock %}
+{% block body_class %}home-page{% endblock %}
 
 {% block content %}
-
-    {% if section_title %}
-        <div class="category-heading">
-            <span class="eyebrow">BÖLÜM</span>
-            <h1>{{ section_title }}</h1>
-        </div>
-    {% endif %}
 
     {% if featured %}
         <section class="featured-slider"
                  data-slider
                  data-autoplay="6000"
-                 aria-label="Son eklenen beş yazı"
+                 aria-label="{% if section_title %}{{ section_title }} — {% endif %}Son eklenen beş yazı"
                  aria-roledescription="karusel">
 
             <div class="slider-track" aria-live="off">
@@ -102,7 +95,7 @@
                 </div>
                 <div class="hero-overlay" aria-hidden="true"></div>
                 <div class="hero-content">
-                    <span class="eyebrow">SON YAZILAR</span>
+                    <span class="eyebrow">{% if section_title %}{{ section_title }}{% else %}SON YAZILAR{% endif %}</span>
                     <h2>{% if section_title %}{{ section_title }} yazıları burada yer alacak.{% else %}Son yazılar{% endif %}</h2>
                     <p>Bu bölümde henüz yayımlanmış yazı bulunmuyor.</p>
                 </div>
