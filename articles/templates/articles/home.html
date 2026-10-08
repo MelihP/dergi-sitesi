@@ -2,6 +2,8 @@
 
 {% block title %}{% if section_title %}{{ section_title }} | {% endif %}Dergi{% endblock %}
 
+{% block body_class %}{% if not section_title %}home-page{% endif %}{% endblock %}
+
 {% block content %}
 
     {% if section_title %}
@@ -12,9 +14,6 @@
     {% endif %}
 
     {% if featured %}
-        {% if not section_title %}
-            <h1 class="slider-heading">Yeni fikirler burada buluşacak.</h1>
-        {% endif %}
         <section class="featured-slider"
                  data-slider
                  data-autoplay="6000"
@@ -39,7 +38,7 @@
                             <div class="hero-placeholder" aria-hidden="true"></div>
                         {% endif %}
 
-
+                        <div class="hero-overlay" aria-hidden="true"></div>
 
                         <div class="hero-content">
                             <span class="eyebrow">{{ article.get_section_display }}</span>
@@ -96,15 +95,15 @@
             {% endif %}
         </section>
     {% else %}
-        {% if not section_title %}<h1 class="slider-heading">Yeni fikirler burada buluşacak.</h1>{% endif %}
         <section class="featured-slider" aria-label="Son yazılar">
             <article class="hero slider-empty">
                 <div class="hero-placeholder slider-empty-art" aria-hidden="true">
                     <span>Dergi.</span>
                 </div>
+                <div class="hero-overlay" aria-hidden="true"></div>
                 <div class="hero-content">
                     <span class="eyebrow">SON YAZILAR</span>
-                    <h2>{% if section_title %}{{ section_title }} yazıları burada yer alacak.{% else %}Yeni fikirler burada buluşacak.{% endif %}</h2>
+                    <h2>{% if section_title %}{{ section_title }} yazıları burada yer alacak.{% else %}Son yazılar{% endif %}</h2>
                     <p>Bu bölümde henüz yayımlanmış yazı bulunmuyor.</p>
                 </div>
             </article>

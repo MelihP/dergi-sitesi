@@ -8,7 +8,7 @@
     <title>{% block title %}Dergi{% endblock %}</title>
     <link rel="stylesheet" href="{% static 'articles/css/style.css' %}">
 </head>
-<body>
+<body class="{% block body_class %}{% endblock %}">
     <a class="skip-link" href="#main-content">İçeriğe geç</a>
 
     <div class="social-bar" aria-label="Sosyal medya bağlantıları">

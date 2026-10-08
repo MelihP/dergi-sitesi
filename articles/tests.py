@@ -34,7 +34,8 @@ class MagazineTests(TestCase):
 
     def test_slider_single_and_empty_states(self):
         response = self.client.get(reverse("articles:home"))
-        self.assertContains(response, "Yeni fikirler burada buluşacak.")
+        self.assertContains(response, "Son yazılar")
+        self.assertNotContains(response, "Yeni fikirler burada buluşacak.")
         self.article("tek")
         response = self.client.get(reverse("articles:home"))
         self.assertEqual(len(response.context["featured"]), 1)
