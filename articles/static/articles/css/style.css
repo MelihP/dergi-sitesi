@@ -7,39 +7,40 @@
 }
 
 @font-face {
-    font-family: "Literata";
-    src: url("../fonts/literata.ttf") format("truetype");
+    font-family: "Source Serif 4";
+    src: url("../fonts/source-serif-4.ttf") format("truetype");
     font-style: normal;
     font-weight: 200 900;
     font-display: swap;
 }
 
 @font-face {
-    font-family: "Literata";
-    src: url("../fonts/literata-italic.ttf") format("truetype");
+    font-family: "Source Serif 4";
+    src: url("../fonts/source-serif-4-italic.ttf") format("truetype");
     font-style: italic;
     font-weight: 200 900;
     font-display: swap;
 }
 
 :root {
-    --font-reading: "Literata", Georgia, "Times New Roman", serif;
+    --font-reading: "Source Serif 4", Georgia, "Times New Roman", serif;
     --font-heading: "Fraunces", Georgia, "Times New Roman", serif;
     color-scheme: light;
-    --bg: #ececea;
-    --surface: #f7f6f2;
+    --bg: #E7E8D1;
+    --surface: #E7E8D1;
     --surface-strong: #ffffff;
     --text: #1b1a18;
     --muted: #68645f;
-    --accent: #FFDBBB;
-    --accent-dark: #FFDBBB;
-    --accent-soft: #fff0e2;
-    --secondary: #346d70;
-    --secondary-soft: #d8e8e7;
-    --border: #d2cfc9;
-    --border-strong: #aaa59e;
+    --accent: #B85042;
+    --accent-dark: #B85042;
+    --accent-soft: #E7E8D1;
+    --secondary: #A7BEAE;
+    --secondary-ink: #385348;
+    --secondary-soft: #A7BEAE;
+    --border: #bac8b5;
+    --border-strong: #82978a;
     --dark: #1d1b1a;
-    --brand-peach: #FFDBBB;
+    --brand-terracotta: #B85042;
     --radius: 4px;
     --shadow: 0 18px 50px rgba(35, 31, 27, 0.1);
     --page-width: 1380px;
@@ -87,6 +88,8 @@ h6 {
     font-family: var(--font-heading);
     line-height: 1.08;
     text-wrap: balance;
+
+    font-weight: 600;
 }
 
 p {
@@ -107,7 +110,7 @@ a:focus-visible,
 button:focus-visible,
 input:focus-visible,
 select:focus-visible {
-    outline: 3px solid var(--secondary);
+    outline: 3px solid var(--secondary-ink);
     outline-offset: 3px;
 }
 
@@ -145,8 +148,8 @@ select:focus-visible {
 /* ÜST SOSYAL ŞERİT */
 
 .social-bar {
-    background: var(--brand-peach);
-    color: var(--text);
+    background: var(--brand-terracotta);
+    color: #fff;
     border-bottom: 3px solid var(--accent);
 }
 
@@ -203,9 +206,11 @@ select:focus-visible {
     position: sticky;
     top: 0;
     z-index: 100;
-    background: rgba(247, 246, 242, 0.96);
+    background: var(--brand-terracotta);
     border-bottom: 1px solid var(--border);
     backdrop-filter: blur(12px);
+
+    color: #fff;
 }
 
 .header-main {
@@ -225,7 +230,7 @@ select:focus-visible {
 }
 
 .logo span {
-    color: var(--accent);
+    color: var(--surface);
 }
 
 .header-content {
@@ -247,7 +252,7 @@ select:focus-visible {
 .main-nav a {
     position: relative;
     padding: 12px 0;
-    color: #46423e;
+    color: #fff;
     font-size: 13px;
     font-weight: 700;
 }
@@ -259,14 +264,14 @@ select:focus-visible {
     bottom: 6px;
     left: 0;
     height: 2px;
-    background: var(--accent);
+    background: var(--surface);
     transform: scaleX(0);
     transform-origin: left;
     transition: transform 180ms ease;
 }
 
 .main-nav a:hover {
-    color: var(--text);
+    color: #fff;
 }
 
 .main-nav a:hover::after {
@@ -305,7 +310,7 @@ select:focus-visible {
     border: 1px solid var(--accent);
     border-radius: 0 var(--radius) var(--radius) 0;
     background: var(--accent);
-    color: var(--text);
+    color: #fff;
     font-weight: 700;
     cursor: pointer;
     transition: background 180ms ease, border-color 180ms ease;
@@ -325,7 +330,7 @@ select:focus-visible {
     gap: 10px;
     border: 1px solid var(--border-strong);
     border-radius: var(--radius);
-    background: transparent;
+    background: var(--surface);
     color: var(--text);
     cursor: pointer;
 }
@@ -434,7 +439,7 @@ select:focus-visible {
 .hero-placeholder {
     z-index: -3;
     background:
-        radial-gradient(circle at 78% 22%, rgba(255, 219, 187, 0.78), transparent 31%),
+        radial-gradient(circle at 78% 22%, rgba(184, 80, 66, 0.78), transparent 31%),
         linear-gradient(130deg, #485e60, #272322 58%, #181616);
 }
 
@@ -541,7 +546,7 @@ select:focus-visible {
 .slider-status button:hover {
     background: var(--accent);
     border-color: var(--accent);
-    color: var(--text);
+    color: #fff;
 }
 
 .slider-status button:disabled {
@@ -714,7 +719,7 @@ select:focus-visible {
     place-items: center;
     border-radius: 50%;
     background: var(--secondary-soft);
-    color: var(--secondary);
+    color: var(--secondary-ink);
     font: 25px/1 Georgia, serif;
 }
 
@@ -805,8 +810,8 @@ select:focus-visible {
     margin: 32px 0;
     padding: 12px 26px;
     border-left: 4px solid var(--accent);
-    background: var(--surface);
-    color: #504b46;
+    background: var(--secondary-soft);
+    color: var(--text);
     font-style: italic;
 }
 
@@ -954,7 +959,7 @@ select:focus-visible {
 
 .site-footer {
     padding: 48px 0;
-    background: var(--brand-peach);
+    background: var(--secondary);
     color: var(--text);
     border-top: 4px solid var(--accent);
 }
@@ -1247,6 +1252,8 @@ select:focus-visible {
         minmax(0, 1fr)
     );
     gap: 26px;
+
+    background: var(--secondary);
 }
 
 .dossier-card {
@@ -1405,7 +1412,7 @@ select:focus-visible {
     background:
         radial-gradient(
             circle at 78% 22%,
-            rgba(255, 219, 187, 0.8),
+            rgba(184, 80, 66, 0.8),
             transparent 30%
         ),
         linear-gradient(
@@ -1509,9 +1516,11 @@ select:focus-visible {
 }
 
 .article-dossier-link strong {
-    color: var(--secondary);
+    color: var(--secondary-ink);
     font-family: var(--font-heading);
     font-size: 19px;
+
+    font-weight: 600;
 }
 
 .related-dossier-articles {
@@ -1607,7 +1616,7 @@ select:focus-visible {
 .dossier-contents p { line-height: 1.6; }
 .main-nav { flex-wrap: wrap; }
 
-.featured-slider .hero .eyebrow, .dossier-hero .eyebrow { color: var(--accent); }
+.featured-slider .hero .eyebrow, .dossier-hero .eyebrow { color: var(--surface); }
 
 .social-launcher {
     position: fixed;
@@ -1620,7 +1629,7 @@ select:focus-visible {
     border: 0;
     border-radius: 999px;
     background: var(--accent-dark);
-    color: var(--text);
+    color: #fff;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1663,8 +1672,10 @@ select:focus-visible {
 .social-empty { color: var(--muted); font-size: 14px; }
 @media (prefers-reduced-motion: reduce) { .social-launcher { transition: none; } }
 
-.social-bar .social-label, .site-footer .footer-inner p, .site-footer .footer-links { color: var(--text); }
-.site-footer .footer-links a:hover, .social-bar .social-links a:hover { color: var(--text); text-decoration: underline; }
+.social-bar .social-label { color: #fff; }
+.site-footer .footer-inner p, .site-footer .footer-links { color: var(--text); }
+.site-footer .footer-links a:hover { color: var(--text); text-decoration: underline; }
+.social-bar .social-links a:hover { color: #fff; text-decoration: underline; }
 .about-section { margin-top: 48px; padding-top: 32px; border-top: 1px solid var(--border); scroll-margin-top: 100px; }
 .about-section h2 { font-size: clamp(28px, 4vw, 40px); }
 
@@ -1682,13 +1693,13 @@ select:focus-visible {
 }
 .dossier-index .dossier-grid { gap: 64px 36px; padding: 20px 24px 42px; border-bottom: 0; }
 .dossier-book {
-    --book-color: #304d4d;
+    --book-color: #385348;
     position: relative;
     min-width: 0;
     align-self: end;
 }
-.dossier-book:nth-child(3n + 2) { --book-color: #823f2e; }
-.dossier-book:nth-child(3n) { --book-color: #51445e; }
+.dossier-book:nth-child(3n + 2) { --book-color: var(--accent); }
+.dossier-book:nth-child(3n) { --book-color: #4b6256; }
 .dossier-book::after {
     content: "";
     position: absolute;
@@ -1696,7 +1707,7 @@ select:focus-visible {
     left: -24px;
     right: -24px;
     height: 16px;
-    background: linear-gradient(#bda083 0%, #bda083 25%, #8b6c50 30%, #a8896a 100%);
+    background: linear-gradient(#A7BEAE 0%, #A7BEAE 25%, #82978a 30%, #94ab9b 100%);
     box-shadow: 0 8px 9px #33271e25;
 }
 .dossier-book-link {
@@ -1718,7 +1729,7 @@ select:focus-visible {
     color: #fff;
     background: var(--book-color);
     border-radius: 3px 9px 9px 3px;
-    border-right: 6px solid #e8dece;
+    border-right: 6px solid var(--surface);
     box-shadow: 5px 6px 0 #c7baa4, 10px 14px 18px #382e2538;
 }
 .dossier-book-cover::before {
@@ -1736,7 +1747,7 @@ select:focus-visible {
 .dossier-book-shade { position: absolute; inset: 0; background: linear-gradient(180deg, #0001, #0002 35%, #000c 100%); }
 .dossier-book-letter { position: absolute; top: 12%; left: 0; width: 100%; text-align: center; font: 120px Georgia, serif; color: #ffffff20; }
 .dossier-book-title { position: relative; z-index: 1; width: 100%; }
-.dossier-book-title .eyebrow { color: var(--accent); font-size: 10px; }
+.dossier-book-title .eyebrow { color: var(--surface); font-size: 10px; }
 .dossier-book-title h3 { margin: 12px 0 18px; font-size: clamp(22px, 2.4vw, 32px); overflow-wrap: anywhere; }
 .dossier-book-count { display: inline-block; font-size: 12px; border-top: 1px solid #ffffff70; padding-top: 10px; }
 .dossier-book-open { display: block; position: relative; text-align: center; padding-top: 14px; font-size: 12px; font-weight: bold; color: var(--text); }
@@ -1765,14 +1776,14 @@ select:focus-visible {
 .dictionary-letter span { color: var(--muted); font: 11px Arial, sans-serif; }
 .dictionary-letter.is-empty { color: var(--muted); }
 .dictionary-letter:hover { border-color: var(--accent); background: var(--accent-soft); }
-.dictionary-letter.is-selected { color: var(--text); background: var(--accent-dark); border-color: var(--text); }
-.dictionary-letter.is-selected span { color: var(--text); }
+.dictionary-letter.is-selected { color: #fff; background: var(--accent-dark); border-color: var(--accent); }
+.dictionary-letter.is-selected span { color: #fff; }
 .dictionary-results-heading { display: flex; align-items: baseline; gap: 20px; padding: 30px 0 16px; border-bottom: 2px solid var(--accent); }
 .dictionary-results-heading h2 { margin: 0; font-size: 54px; }
 .dictionary-results-heading span { color: var(--muted); font-size: 14px; }
 .dictionary-entries { margin: 0; }
 .dictionary-entry { display: grid; grid-template-columns: minmax(160px, 1fr) minmax(0, 3fr); gap: 28px; padding: 28px 0; border-bottom: 1px solid var(--border); }
-.dictionary-entry dt { font: bold 25px var(--font-heading); overflow-wrap: anywhere; }
+.dictionary-entry dt { font: 600 25px var(--font-heading); overflow-wrap: anywhere; }
 .dictionary-entry dd { margin: 0; font-size: 17px; line-height: 1.75; }
 .dictionary-entry dd p { margin: 0 0 10px; }
 .dictionary-entry dd p:last-child { margin-bottom: 0; }
@@ -1794,7 +1805,7 @@ select:focus-visible {
     position: absolute;
     top: auto;
     width: 100%;
-    background: rgba(16, 14, 13, 0.3);
+    background: var(--brand-terracotta);
     border-bottom-color: rgba(255, 255, 255, 0.15);
     color: #fff;
 }
@@ -1826,7 +1837,7 @@ select:focus-visible {
 .featured-slider .slider-arrows button,
 .featured-slider .slider-status button { border-color: rgba(255, 255, 255, 0.5); }
 .featured-slider .slider-dots button { background: rgba(255, 255, 255, 0.6); height: 6px; }
-.featured-slider .slider-dots button[aria-current="true"] { background: var(--brand-peach); }
+.featured-slider .slider-dots button[aria-current="true"] { background: var(--brand-terracotta); }
 .featured-slider .slider-dots button { position: relative; }
 .featured-slider .slider-dots button::before { content: ""; position: absolute; inset: -19px 0; }
 .featured-slider .hero { padding-bottom: 110px; }
@@ -1883,4 +1894,11 @@ select:focus-visible {
 
 .dictionary-entry dd { font-family: var(--font-reading); }
 .featured-slider .slider-arrows button:hover,
-.featured-slider .slider-status button:hover { color: var(--text); }
+.featured-slider .slider-status button:hover { color: #fff; }
+
+/* A sage search action stands out against the terracotta header. */
+.header-search button, .header-search button:hover {
+    background: var(--secondary);
+    border-color: var(--secondary);
+    color: var(--text);
+}
