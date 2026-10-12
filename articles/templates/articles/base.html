@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#ececea">
-    <title>{% block title %}Dergi{% endblock %}</title>
+    <title>{% block title %}Başka Medya{% endblock %}</title>
     <link rel="stylesheet" href="{% static 'articles/css/style.css' %}">
 </head>
 <body class="{% block body_class %}{% endblock %}">
@@ -18,23 +18,23 @@
                 <a href="https://x.com/baskamedyainfo"
                    target="_blank"
                    rel="noopener noreferrer"
-                   aria-label="Dergi X hesabı (yeni sekmede açılır)">X</a>
+                   aria-label="Başka Medya X hesabı (yeni sekmede açılır)">X</a>
                 <a href="https://www.instagram.com/baskamedyainfo/"
                    target="_blank"
                    rel="noopener noreferrer"
-                   aria-label="Dergi Instagram hesabı (yeni sekmede açılır)">Instagram</a>
+                   aria-label="Başka Medya Instagram hesabı (yeni sekmede açılır)">Instagram</a>
                 <a href="https://www.youtube.com/@baskamedya"
                    target="_blank"
                    rel="noopener noreferrer"
-                   aria-label="Dergi YouTube hesabı (yeni sekmede açılır)">YouTube</a>
+                   aria-label="Başka Medya YouTube hesabı (yeni sekmede açılır)">YouTube</a>
             </div>
         </div>
     </div>
 
     <header class="site-header">
         <div class="header-main">
-            <a class="logo" href="{% url 'articles:home' %}" aria-label="Dergi ana sayfa">
-                Dergi<span aria-hidden="true">.</span>
+            <a class="logo" href="{% url 'articles:home' %}" aria-label="Başka Medya ana sayfa">
+                Başka Medya<span aria-hidden="true">.</span>
             </a>
 
             <button class="menu-toggle"
@@ -84,7 +84,7 @@
     <footer class="site-footer">
         <div class="footer-inner">
             <div>
-                <a class="footer-logo" href="{% url 'articles:home' %}">Dergi.</a>
+                <a class="footer-logo" href="{% url 'articles:home' %}">Başka Medya.</a>
                 <p>Düşünce, kültür ve tartışma.</p>
             </div>
             <div class="footer-links" aria-label="Alt menü">

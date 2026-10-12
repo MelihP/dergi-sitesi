@@ -268,8 +268,8 @@ class SocialPostAdmin(admin.ModelAdmin):
     )
 
 
-admin.site.site_header = "Dergi Yönetimi"
-admin.site.site_title = "Dergi Admin"
+admin.site.site_header = "Başka Medya Yönetimi"
+admin.site.site_title = "Başka Medya Admin"
 admin.site.index_title = "İçerik Yönetimi"
 
 @admin.register(SitePage)
