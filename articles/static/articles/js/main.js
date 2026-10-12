@@ -1,3 +1,49 @@
+// Keep the home menu briefly in view, then fade it as the reader scrolls.
+(() => {
+    if (!document.body.classList.contains("home-with-slider-gap")) return;
+
+    const header = document.querySelector(".site-header");
+    if (!header) return;
+
+    const socialBar = document.querySelector(".social-bar");
+    const menu = header.querySelector("[data-menu]");
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+    let socialBarHeight = socialBar?.offsetHeight || 0;
+    let framePending = false;
+
+    const update = () => {
+        framePending = false;
+        const interacting = menu?.classList.contains("is-open") ||
+            header.querySelector(":focus-visible");
+        const distance = Math.max(0, window.scrollY - socialBarHeight);
+        const progress = interacting ? 0 : Math.min(1, Math.max(0, (distance - 110) / 220));
+        const fade = progress * progress * (3 - 2 * progress);
+
+        header.style.setProperty("--home-menu-opacity", String(1 - fade));
+        header.style.setProperty("--home-menu-shift", `${reducedMotion.matches ? 0 : -16 * fade}px`);
+        header.classList.toggle("is-scroll-hidden", progress === 1);
+    };
+
+    const scheduleUpdate = () => {
+        if (framePending) return;
+        framePending = true;
+        window.requestAnimationFrame(update);
+    };
+
+    window.addEventListener("scroll", scheduleUpdate, { passive: true });
+    window.addEventListener("resize", () => {
+        socialBarHeight = socialBar?.offsetHeight || 0;
+        scheduleUpdate();
+    });
+    window.addEventListener("pageshow", scheduleUpdate);
+    header.addEventListener("focusin", scheduleUpdate);
+    header.addEventListener("focusout", scheduleUpdate);
+    header.addEventListener("click", scheduleUpdate);
+    header.addEventListener("keydown", scheduleUpdate);
+    reducedMotion.addEventListener("change", scheduleUpdate);
+    update();
+})();
+
 (() => {
     const menuButton = document.querySelector("[data-menu-toggle]");
     const menu = document.querySelector("[data-menu]");

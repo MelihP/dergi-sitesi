@@ -1990,7 +1990,13 @@ select:focus-visible {
     --home-slider-gap: 7px;
     --home-social-bar-height: 42px;
 }
-.home-with-slider-gap .site-header { position: relative; }
+.home-with-slider-gap .site-header {
+    position: sticky;
+    top: 0;
+    opacity: var(--home-menu-opacity, 1);
+    transform: translateY(var(--home-menu-shift, 0px));
+}
+.home-with-slider-gap .site-header.is-scroll-hidden { pointer-events: none; }
 .home-with-slider-gap .site-header::after {
     content: "";
     position: absolute;
