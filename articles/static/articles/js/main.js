@@ -1,4 +1,4 @@
-// Keep the home menu briefly in view, then fade it as the reader scrolls.
+// Keep the menu briefly in view on cover-slider pages, then fade it on scroll.
 (() => {
     if (!document.body.classList.contains("home-with-slider-gap")) return;
 

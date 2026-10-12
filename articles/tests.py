@@ -62,7 +62,7 @@ class MagazineTests(TestCase):
         self.assertNotContains(index, "Gizli dosya")
         detail = self.client.get(reverse("articles:dossier_detail", args=["emek"]))
         self.assertEqual([a.slug for a in detail.context["page_obj"]], ["ilk", "ikinci"])
-        self.assertContains(detail, 'class="dossier-contents"')
+        self.assertContains(detail, 'class="dossier-grid dossier-article-grid"')
         self.assertNotContains(detail, reverse("articles:detail", args=["baska"]))
         self.assertEqual(self.client.get(reverse("articles:dossier_detail", args=["gizli"])).status_code, 404)
 
@@ -561,6 +561,74 @@ class SliderCategoryLinkTests(TestCase):
         link = self.category_links(response)[0]
         self.assertEqual(link["href"], reverse("articles:dossier_detail", args=[dossier.slug]))
         self.assertEqual(link["aria-label"], "Ekoloji dosyasını aç")
+
+
+class MagazinePresentationTests(TestCase):
+    def article(self, slug, **kwargs):
+        defaults = dict(title=slug, author_name="Yazar", content="Metin", status="published")
+        defaults.update(kwargs)
+        return Article.objects.create(slug=slug, **defaults)
+
+    def soup(self, response):
+        from bs4 import BeautifulSoup
+        return BeautifulSoup(response.content, "html.parser")
+
+    def test_all_cover_sections_share_the_clear_slider_layout(self):
+        Dossier.objects.create(title="Kent", slug="kent", status="published")
+        for section in Article.Section.values:
+            self.article(section, section=section)
+        for url in ["/", "/?bolum=dosya", "/?bolum=ceviri", "/?bolum=tartisma", "/dosyalar/"]:
+            with self.subTest(url=url):
+                soup = self.soup(self.client.get(url))
+                self.assertIn("home-with-slider-gap", soup.body["class"])
+                self.assertIsNotNone(soup.select_one(".featured-slider .hero"))
+        self.assertNotIn("home-with-slider-gap", self.soup(self.client.get("/yazilar/")).body.get("class", []))
+
+    def test_dossier_books_keep_covers_order_tags_and_pagination(self):
+        dossier = Dossier.objects.create(title="Emek", slug="emek", status="published")
+        tag = Tag.objects.create(name="Barınma")
+        for index in range(11):
+            article = self.article(f"kitap-{index}", dossier=dossier, dossier_order=index,
+                                   cover=f"covers/{index}.jpg" if index < 9 else "")
+            if index == 0:
+                article.tags.add(tag)
+        self.article("gizli-kitap", dossier=dossier, status="draft")
+        self.article("gelecek-kitap", dossier=dossier, published_at=timezone.now() + timedelta(days=1))
+        response = self.client.get(reverse("articles:dossier_detail", args=[dossier.slug]))
+        soup = self.soup(response)
+        books = soup.select(".dossier-article-grid .article-book")
+        self.assertEqual([book.h3.get_text(strip=True) for book in books], [f"kitap-{i}" for i in range(9)])
+        for index, book in enumerate(books):
+            self.assertEqual(book.select_one(".dossier-book-link")["href"], f"/yazi/kitap-{index}/")
+            self.assertEqual(book.img["src"], f"/media/covers/{index}.jpg")
+            self.assertEqual(book.select_one(".slider-category--small")["href"], "/dosya/emek/")
+        self.assertEqual(books[0].select_one(".article-tag")["href"], f"/yazilar/?etiket={tag.pk}")
+        self.assertIsNone(soup.select_one("a a"))
+        self.assertNotContains(response, "gizli-kitap")
+        self.assertNotContains(response, "gelecek-kitap")
+        next_page = self.soup(self.client.get("/dosya/emek/?sayfa=2"))
+        self.assertEqual(len(next_page.select(".article-book")), 2)
+        self.assertEqual(len(next_page.select(".article-book .dossier-book-letter")), 2)
+        self.assertIsNotNone(next_page.select_one('.pagination a[href="?sayfa=1"]'))
+
+    def test_compact_category_links_work_in_archive_picks_cards_and_article_headers(self):
+        dossier = Dossier.objects.create(title="Ekoloji", slug="ekoloji", status="published")
+        expected = {"dosya": "/dosya/ekoloji/", "ceviri": "/?bolum=ceviri", "tartisma": "/?bolum=tartisma"}
+        for section in expected:
+            self.article(section, section=section, dossier=dossier, is_archive_pick=True)
+        for index in range(5):
+            self.article(f"yeni-{index}", section="ceviri")
+        for url, selector in [("/", ".archive-section .card"), ("/yazilar/", ".card")]:
+            soup = self.soup(self.client.get(url))
+            cards = {card.h3.get_text(strip=True): card for card in soup.select(selector)}
+            for section, destination in expected.items():
+                link = cards[section].select_one(".slider-category--small")
+                self.assertEqual(link["href"], destination)
+                self.assertIsNone(link.select_one("span"))
+            self.assertIsNone(soup.select_one("a a"))
+        for section, destination in expected.items():
+            soup = self.soup(self.client.get(f"/yazi/{section}/"))
+            self.assertEqual(soup.select_one(".article-header .slider-category--small")["href"], destination)
 
 
 class DossierSliderTests(TestCase):

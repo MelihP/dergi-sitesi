@@ -29,11 +29,7 @@
         {% endif %}
 
         <header class="article-header">
-            <span class="eyebrow">
-                {{ article.get_section_display }}
-            </span>
-
-            {% include "articles/_article_tags.html" %}
+            {% include "articles/_article_labels.html" %}
 
             <h1>
                 {{ article.title }}

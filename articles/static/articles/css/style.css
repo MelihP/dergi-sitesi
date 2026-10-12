@@ -503,6 +503,21 @@ select:focus-visible {
 .slider-category:hover span,
 .slider-category:focus-visible span { opacity: 1; transform: translate(2px, -2px); }
 .slider-category:focus-visible { outline: none; box-shadow: inset 0 0 0 2px #fffaf5; }
+.slider-category--small {
+    min-height: 0;
+    padding: 3px 11px 3px 18px;
+    border: 1px solid #b9896c;
+    clip-path: polygon(8px 0, 100% 0, 100% 100%, 8px 100%, 0 50%);
+    font: 500 12px/1.5 var(--font-reading);
+    letter-spacing: normal;
+    text-transform: none;
+    overflow-wrap: anywhere;
+}
+.slider-category--small::before { left: 8px; top: calc(50% - 2px); width: 4px; height: 4px; }
+.slider-category--small:hover,
+.slider-category--small:focus-visible { transform: translateY(-1px); }
+.article-labels { display: flex; align-items: flex-start; flex-wrap: wrap; gap: 6px; margin: 0 0 12px; }
+.article-labels .article-tags { margin: 0; }
 @media (prefers-reduced-motion: reduce) {
     .slider-category, .slider-category span { transition: none; }
     .slider-category:hover, .slider-category:focus-visible,
@@ -1681,12 +1696,6 @@ select:focus-visible {
 }
 .dossier-index .dossier-grid { gap: 28px; padding-bottom: 26px; border-bottom: 8px solid #b8afa1; }
 .dossier-index .dossier-card { border-left: 7px solid #795137; border-radius: 3px; }
-.dossier-contents { padding-left: 28px; }
-.dossier-contents li { padding: 22px 16px; border-bottom: 1px solid #e3d8d0; }
-.dossier-contents a { display: block; color: inherit; text-decoration: none; }
-.dossier-contents a:hover h3 { text-decoration: underline; }
-.dossier-contents h3 { margin: 10px 0; font-size: clamp(22px, 3vw, 30px); }
-.dossier-contents p { line-height: 1.6; }
 .main-nav { flex-wrap: wrap; }
 
 .featured-slider .hero .eyebrow, .dossier-hero .eyebrow { color: var(--surface); }
@@ -1833,6 +1842,12 @@ select:focus-visible {
 .dossier-book-title h3 { margin: 12px 0 18px; font-size: clamp(22px, 2.4vw, 32px); overflow-wrap: anywhere; }
 .dossier-book-count { display: inline-block; font-size: 12px; border-top: 1px solid #ffffff70; padding-top: 10px; }
 .dossier-book-open { display: block; position: relative; text-align: center; padding-top: 14px; font-size: 12px; font-weight: bold; color: var(--text); }
+.article-book { display: flex; flex-direction: column; align-self: stretch; }
+.article-book .dossier-book-link { margin: 0 auto; }
+.article-book-details { width: 100%; max-width: 260px; margin: 14px auto 0; }
+.article-book-details .article-labels { margin-bottom: 8px; }
+.article-book-details .meta { font-size: 11px; }
+.dossier-article-grid .dossier-empty { grid-column: 1 / -1; }
 @media (max-width: 1100px) {
     .dossier-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
@@ -1848,7 +1863,10 @@ select:focus-visible {
     .dossier-book-title .eyebrow { font-size: 8px; letter-spacing: 0.08em; }
     .dossier-book-count { font-size: 11px; }
 }
-@media (prefers-reduced-motion: reduce) { .dossier-book-link { transition: none; } }
+@media (prefers-reduced-motion: reduce) {
+    .dossier-book-link { transition: none; }
+    .article-book .dossier-book-link:hover { transform: none; }
+}
 
 .dictionary-header { max-width: 800px; padding: 38px 0; }
 .dictionary-header h1 { font-size: clamp(38px, 6vw, 72px); margin: 14px 0 20px; }
@@ -1876,10 +1894,9 @@ select:focus-visible {
     .dictionary-entry { grid-template-columns: 1fr; gap: 12px; }
 }
 
-/* Full-width cover with navigation and slide controls over the photograph. */
+/* All section sliders use the same full-width cover and clear menu separation. */
 .home-page {
     --slider-header-height: 88px;
-    --slider-top-fade: 32px;
 }
 .home-page .container { padding-top: 0; }
 .home-page .featured-slider {
@@ -1888,8 +1905,8 @@ select:focus-visible {
     border-radius: 0;
 }
 .home-page .site-header {
-    position: absolute;
-    top: auto;
+    position: sticky;
+    top: 0;
     width: 100%;
     background: var(--header-gradient);
     border-bottom: 0;
@@ -1897,30 +1914,11 @@ select:focus-visible {
     color: var(--text);
 }
 .home-page .main-nav a { color: var(--text); }
-/* Fade only a narrow strip of the photograph and its shading below the menu. */
-.home-page .featured-slider :is(.hero-image, .hero-placeholder, .hero-overlay) {
-    -webkit-mask-image: linear-gradient(
-        to bottom,
-        transparent 0,
-        transparent var(--slider-header-height),
-        rgba(0, 0, 0, 0.55) calc(var(--slider-header-height) + var(--slider-top-fade) / 2),
-        #000 calc(var(--slider-header-height) + var(--slider-top-fade)),
-        #000 100%
-    );
-    mask-image: linear-gradient(
-        to bottom,
-        transparent 0,
-        transparent var(--slider-header-height),
-        rgba(0, 0, 0, 0.55) calc(var(--slider-header-height) + var(--slider-top-fade) / 2),
-        #000 calc(var(--slider-header-height) + var(--slider-top-fade)),
-        #000 100%
-    );
-}
 .home-page .featured-slider .hero {
     background: var(--header-gradient);
     min-height: calc(100vh - 45px);
     min-height: calc(100svh - 45px);
-    padding: 200px max(32px, calc((100vw - var(--page-width)) / 2)) 110px;
+    padding: 64px max(32px, calc((100vw - var(--page-width)) / 2)) 110px;
 }
 .featured-slider .hero-content { width: 100%; }
 .featured-slider .hero h2 {
@@ -1963,7 +1961,7 @@ select:focus-visible {
 }
 .article-text a { overflow-wrap: anywhere; hyphens: none; }
 @media (max-width: 680px) {
-    .home-page .featured-slider .hero { padding: 200px 24px 145px; }
+    .home-page .featured-slider .hero { padding: 40px 24px 145px; }
     .featured-slider .hero { padding-bottom: 145px; }
     .featured-slider .slider-toolbar { padding-inline: 24px; }
     .home-page .header-content { background: var(--surface); color: var(--text); }
@@ -1971,7 +1969,7 @@ select:focus-visible {
 }
 
 @media (max-width: 980px) {
-    .home-page { --slider-header-height: 74px; --slider-top-fade: 24px; }
+    .home-page { --slider-header-height: 74px; }
     .home-page .header-content { background: var(--surface); color: var(--text); padding: 16px; }
     .home-page .header-content .main-nav a { color: var(--text); }
 }
@@ -2019,14 +2017,13 @@ select:focus-visible {
 .site-header .main-nav a[href="/yazilar/"], .home-page .main-nav a[href="/yazilar/"] { color: #8b5135; }
 .section-link, .footer-links a[href="/yazilar/"] { color: #96593a; }
 .section-link:hover, .footer-links a[href="/yazilar/"]:hover { color: #75472f; }
-.dossier-contents .article-tag { color: #895236; }
 .social-tab[aria-selected="true"] { color: #75472f; border-bottom-color: #96593a; }
 .social-post-action, .social-profile-link { color: #865437; }
 .header-search button { background: #eaded5; border-color: #c8ad9b; color: #75472f; }
 .header-search button:hover { background: #e1ccbc; border-color: #b9957b; color: #5e3d2e; }
 .article-text a { color: #895236; }
 
-/* A short page-background strip separates the home navigation from its cover. */
+/* A seven-pixel brand-colored strip separates navigation from every slider. */
 .home-with-slider-gap {
     --home-slider-gap: 7px;
     --home-social-bar-height: 42px;

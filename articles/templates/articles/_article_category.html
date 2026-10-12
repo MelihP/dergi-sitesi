@@ -1,0 +1,5 @@
+{% with category=article.slider_category %}
+    <a class="slider-category{% if compact %} slider-category--small{% endif %}" href="{{ category.url }}" aria-label="{{ category.description }}" title="{{ category.description }}">
+        {{ article.get_section_display }}{% if not compact %} <span aria-hidden="true">↗</span>{% endif %}
+    </a>
+{% endwith %}

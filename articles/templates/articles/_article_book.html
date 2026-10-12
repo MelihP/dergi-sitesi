@@ -1,0 +1,21 @@
+<article class="dossier-book article-book">
+    <a class="dossier-book-link" href="{% url 'articles:detail' article.slug %}">
+        <div class="dossier-book-cover">
+            {% if article.cover %}
+                <img class="dossier-book-image" src="{{ article.cover.url }}" alt="" loading="lazy">
+            {% else %}
+                <span class="dossier-book-letter" aria-hidden="true">{{ article.title|first }}</span>
+            {% endif %}
+            <div class="dossier-book-shade" aria-hidden="true"></div>
+            <div class="dossier-book-title">
+                <h3>{{ article.title }}</h3>
+                <span class="dossier-book-count">{{ article.author_name }}</span>
+            </div>
+        </div>
+        <span class="dossier-book-open">Yazıyı oku →</span>
+    </a>
+    <div class="article-book-details">
+        {% include "articles/_article_labels.html" %}
+        {% if article.published_at %}<time class="meta" datetime="{{ article.published_at|date:'c' }}">{{ article.published_at|date:"j F Y" }}</time>{% endif %}
+    </div>
+</article>

@@ -13,11 +13,7 @@
 
     </a>
         <div class="card-body">
-            <span class="eyebrow">
-                {{ article.get_section_display }}
-            </span>
-
-            {% include "articles/_article_tags.html" %}
+            {% include "articles/_article_labels.html" %}
 
             <h3><a class="card-link" href="{% url 'articles:detail' article.slug %}">{{ article.title }}</a></h3>
 

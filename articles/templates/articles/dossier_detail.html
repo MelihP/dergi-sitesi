@@ -82,26 +82,18 @@
                 </div>
             </div>
 
-            <ol class="dossier-contents" start="{{ page_obj.start_index }}">
+            <div class="dossier-grid dossier-article-grid">
                 {% for article in page_obj %}
-                    <li>
-                        {% include "articles/_article_tags.html" %}
-                        <a href="{% url 'articles:detail' article.slug %}">
-                            <span class="eyebrow">{{ article.get_section_display }}</span>
-                            <h3>{{ article.title }}</h3>
-                            <span>{{ article.author_name }} · {{ article.published_at|date:"j F Y" }}</span>
-                            {% if article.summary %}<p>{{ article.summary|truncatechars:180 }}</p>{% endif %}
-                        </a>
-                    </li>
+                    {% include "articles/_article_book.html" %}
                 {% empty %}
-                    <li class="dossier-empty">
+                    <div class="dossier-empty">
                         <h2>
                             Bu dosyada henüz yayımlanmış
                             yazı bulunmuyor.
                         </h2>
-                    </li>
+                    </div>
                 {% endfor %}
-            </ol>
+            </div>
 
             {% if page_obj.paginator.num_pages > 1 %}
                 <nav
