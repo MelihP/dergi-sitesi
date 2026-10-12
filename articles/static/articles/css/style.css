@@ -1,5 +1,13 @@
+@font-face {
+    font-family: "Fraunces";
+    src: url("../fonts/fraunces.ttf") format("truetype");
+    font-style: normal;
+    font-weight: 100 900;
+    font-display: swap;
+}
+
 :root {
-    --font-heading: "Courier New", Courier, monospace;
+    --font-heading: "Fraunces", Georgia, "Times New Roman", serif;
     color-scheme: light;
     --bg: #ececea;
     --surface: #f7f6f2;
