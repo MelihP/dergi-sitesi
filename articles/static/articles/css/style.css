@@ -1,4 +1,13 @@
+@font-face {
+    font-family: "Space Grotesk";
+    src: url("../fonts/space-grotesk.ttf") format("truetype");
+    font-style: normal;
+    font-weight: 300 700;
+    font-display: swap;
+}
+
 :root {
+    --font-heading: "Space Grotesk", Arial, Helvetica, sans-serif;
     color-scheme: light;
     --bg: #ececea;
     --surface: #f7f6f2;
@@ -54,8 +63,11 @@ img {
 
 h1,
 h2,
-h3 {
-    font-family: Georgia, "Times New Roman", serif;
+h3,
+h4,
+h5,
+h6 {
+    font-family: var(--font-heading);
     line-height: 1.08;
     text-wrap: balance;
 }
@@ -1480,7 +1492,7 @@ select:focus-visible {
 
 .article-dossier-link strong {
     color: var(--secondary);
-    font-family: Georgia, serif;
+    font-family: var(--font-heading);
     font-size: 19px;
 }
 
@@ -1742,7 +1754,7 @@ select:focus-visible {
 .dictionary-results-heading span { color: var(--muted); font-size: 14px; }
 .dictionary-entries { margin: 0; }
 .dictionary-entry { display: grid; grid-template-columns: minmax(160px, 1fr) minmax(0, 3fr); gap: 28px; padding: 28px 0; border-bottom: 1px solid var(--border); }
-.dictionary-entry dt { font: bold 25px Georgia, serif; overflow-wrap: anywhere; }
+.dictionary-entry dt { font: bold 25px var(--font-heading); overflow-wrap: anywhere; }
 .dictionary-entry dd { margin: 0; font-size: 17px; line-height: 1.75; }
 .dictionary-entry dd p { margin: 0 0 10px; }
 .dictionary-entry dd p:last-child { margin-bottom: 0; }

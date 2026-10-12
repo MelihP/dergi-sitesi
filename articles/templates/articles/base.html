@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#ececea">
     <title>{% block title %}Başka Medya{% endblock %}</title>
+    <link rel="preload" href="{% static 'articles/fonts/space-grotesk.ttf' %}" as="font" type="font/ttf" crossorigin>
     <link rel="stylesheet" href="{% static 'articles/css/style.css' %}">
 </head>
 <body class="{% block body_class %}{% endblock %}">
