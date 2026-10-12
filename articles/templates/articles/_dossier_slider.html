@@ -26,7 +26,9 @@
                         <div class="hero-overlay" aria-hidden="true"></div>
 
                         <div class="hero-content">
-                            <span class="eyebrow">DOSYALAR</span>
+                            <a class="slider-category" href="{% url 'articles:dossier_detail' dossier.slug %}" aria-label="{{ dossier.title }} dosyasını aç" title="{{ dossier.title }} dosyasını aç">
+                                Dosya <span aria-hidden="true">↗</span>
+                            </a>
                             <h2>{{ dossier.title }}</h2>
 
                             {% if dossier.summary %}

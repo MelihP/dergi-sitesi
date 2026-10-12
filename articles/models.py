@@ -3,6 +3,7 @@ import unicodedata
 from django.core.exceptions import ValidationError
 from django.core.validators import URLValidator
 from django.db import models
+from django.urls import reverse
 from django.utils import timezone
 
 from .richtext import render_content
@@ -278,6 +279,22 @@ class Article(models.Model):
     @property
     def formatted_content(self):
         return render_content(self)
+
+    @property
+    def slider_category(self):
+        if self.section == self.Section.DOSYA:
+            dossier = self.dossier
+            if (dossier and dossier.status == Dossier.Status.PUBLISHED
+                    and dossier.published_at and dossier.published_at <= timezone.now()):
+                return {
+                    "url": reverse("articles:dossier_detail", args=[dossier.slug]),
+                    "description": f"{dossier.title} dosyasını aç",
+                }
+            return {"url": reverse("articles:dossier_list"), "description": "Dosyalar bölümünü aç"}
+        return {
+            "url": f"{reverse('articles:home')}?bolum={self.section}",
+            "description": f"{self.get_section_display()} bölümünü aç",
+        }
 
     def __str__(self):
         return self.title

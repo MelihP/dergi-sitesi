@@ -34,7 +34,11 @@
                         <div class="hero-overlay" aria-hidden="true"></div>
 
                         <div class="hero-content">
-                            <span class="eyebrow">{{ article.get_section_display }}</span>
+                            {% with category=article.slider_category %}
+                                <a class="slider-category" href="{{ category.url }}" aria-label="{{ category.description }}" title="{{ category.description }}">
+                                    {{ article.get_section_display }} <span aria-hidden="true">↗</span>
+                                </a>
+                            {% endwith %}
                             {% include "articles/_article_tags.html" %}
                             <h2>{{ article.title }}</h2>
 

@@ -510,6 +510,59 @@ class ArticleWrappingTests(TestCase):
         self.assertIn('<p>İkinci paragraf.</p>', html)
 
 
+class SliderCategoryLinkTests(TestCase):
+    def article(self, slug, **kwargs):
+        return Article.objects.create(title=slug, slug=slug, author_name="Yazar",
+                                      content="Metin", status="published", **kwargs)
+
+    def category_links(self, response):
+        from bs4 import BeautifulSoup
+        return BeautifulSoup(response.content, "html.parser").select(".featured-slider a.slider-category")
+
+    def test_dossier_category_opens_the_articles_public_dossier(self):
+        dossier = Dossier.objects.create(title="Barınma", slug="barinma", status="published")
+        self.article("kira", dossier=dossier, section="dosya")
+        response = self.client.get(reverse("articles:home"))
+        link = self.category_links(response)[0]
+        self.assertEqual(link["href"], reverse("articles:dossier_detail", args=[dossier.slug]))
+        self.assertEqual(link["aria-label"], "Barınma dosyasını aç")
+        self.assertEqual(self.client.get(link["href"]).status_code, 200)
+
+    def test_section_categories_open_their_section_even_when_in_a_dossier(self):
+        dossier = Dossier.objects.create(title="Emek", slug="emek", status="published")
+        for section in ["ceviri", "tartisma"]:
+            self.article(section, dossier=dossier, section=section)
+        for query in [{}, {"bolum": "ceviri"}, {"bolum": "tartisma"}]:
+            response = self.client.get(reverse("articles:home"), query)
+            links = self.category_links(response)
+            self.assertEqual(len(links), 1 if query else 2)
+            for link in links:
+                self.assertIn(link["href"], ["/?bolum=ceviri", "/?bolum=tartisma"])
+                destination = self.client.get(link["href"])
+                self.assertEqual(destination.status_code, 200)
+                self.assertTrue(all(a.section == destination.context["section"] for a in destination.context["featured"]))
+
+    def test_unavailable_dossier_falls_back_to_public_dossier_list(self):
+        draft = Dossier.objects.create(title="Taslak", slug="taslak")
+        future = Dossier.objects.create(title="Gelecek", slug="gelecek", status="published",
+                                        published_at=timezone.now() + timedelta(days=1))
+        for index, dossier in enumerate([None, draft, future]):
+            self.article(f"yazi-{index}", section="dosya", dossier=dossier)
+        response = self.client.get(reverse("articles:home"))
+        links = self.category_links(response)
+        self.assertEqual(len(links), 3)
+        self.assertTrue(all(link["href"] == reverse("articles:dossier_list") for link in links))
+        self.assertNotContains(response, "/dosya/taslak/")
+        self.assertNotContains(response, "/dosya/gelecek/")
+
+    def test_dossier_slider_badge_opens_the_displayed_dossier(self):
+        dossier = Dossier.objects.create(title="Ekoloji", slug="ekoloji", status="published")
+        response = self.client.get(reverse("articles:dossier_list"))
+        link = self.category_links(response)[0]
+        self.assertEqual(link["href"], reverse("articles:dossier_detail", args=[dossier.slug]))
+        self.assertEqual(link["aria-label"], "Ekoloji dosyasını aç")
+
+
 class DossierSliderTests(TestCase):
     def test_slider_limits_to_five_public_dossiers_and_prioritizes_featured(self):
         for index in range(7):
