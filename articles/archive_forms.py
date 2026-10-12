@@ -1,5 +1,7 @@
 from django import forms
-from .models import Article
+from django.utils import timezone
+
+from .models import Article, Tag
 
 
 class ArchiveFilterForm(forms.Form):
@@ -9,7 +11,7 @@ class ArchiveFilterForm(forms.Form):
         max_length=200,
         widget=forms.TextInput(
             attrs={
-                "placeholder": "Başlık, yazar veya metinde ara…",
+                "placeholder": "Başlık, yazar, metin veya etikette ara…",
             }
         ),
     )
@@ -21,6 +23,10 @@ class ArchiveFilterForm(forms.Form):
             ("", "Tüm kategoriler"),
             *Article.Section.choices,
         ],
+    )
+
+    etiket = forms.ModelChoiceField(
+        label="Etiket", queryset=Tag.objects.none(), required=False, empty_label="Tüm etiketler",
     )
 
     baslangic = forms.DateField(
@@ -40,6 +46,13 @@ class ArchiveFilterForm(forms.Form):
             attrs={"type": "date"},
         ),
     )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["etiket"].queryset = Tag.objects.filter(
+            articles__status=Article.Status.PUBLISHED,
+            articles__published_at__lte=timezone.now(),
+        ).distinct()
 
     def clean(self):
         cleaned_data = super().clean()

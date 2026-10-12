@@ -9,7 +9,7 @@ from django.utils import timezone
 
 from .checks import persistent_storage_check
 from .forms import ArticleAdminForm
-from .models import Article, Concept, Dossier, SitePage, SocialPost, YouTubeVideo
+from .models import Article, Concept, Dossier, SitePage, SocialPost, Tag, YouTubeVideo
 
 
 class MagazineTests(TestCase):
@@ -98,6 +98,134 @@ class MagazineTests(TestCase):
                 storage = FileSystemStorage(location=root)
                 with storage.open(article.cover.name) as saved:
                     self.assertEqual(saved.read(), b"stored-file")
+
+
+class ArticleTagTests(TestCase):
+    def article(self, slug, **kwargs):
+        defaults = dict(title=slug, author_name="Yazar", content="Metin", section="ceviri", status="published")
+        defaults.update(kwargs)
+        return Article.objects.create(slug=slug, **defaults)
+
+    def data(self, **kwargs):
+        data = dict(title="Yazı", slug="etiketli-yazi", author_name="Yazar", content="<p>Metin</p>",
+                    section="ceviri", status="published", dossier_order=0, tag_names="Emek, Söyleşi")
+        data.update(kwargs)
+        return data
+
+    def test_form_creates_tags_and_reuses_turkish_case_variants(self):
+        existing = Tag.objects.create(name="İşçi")
+        form = ArticleAdminForm(data=self.data(tag_names=" İşçi, işçi, BARINMA, Barınma, , Söyleşi "))
+        self.assertTrue(form.is_valid(), form.errors)
+        article = form.save()
+        self.assertEqual(article.tags.count(), 3)
+        self.assertIn(existing, article.tags.all())
+        self.assertEqual(Tag.objects.filter(key="barınma").count(), 1)
+        self.assertEqual(Tag.objects.count(), 3)
+
+    def test_commit_false_and_save_m2m_and_clearing_existing_tags(self):
+        form = ArticleAdminForm(data=self.data())
+        self.assertTrue(form.is_valid(), form.errors)
+        article = form.save(commit=False)
+        self.assertIsNone(article.pk)
+        self.assertFalse(Tag.objects.exists())
+        article.save()
+        form.save_m2m()
+        self.assertEqual(article.tags.count(), 2)
+        edit = ArticleAdminForm(instance=article)
+        self.assertEqual(edit.initial["tag_names"], "Emek, Söyleşi")
+        edit = ArticleAdminForm(instance=article, data=self.data(tag_names=""))
+        self.assertTrue(edit.is_valid(), edit.errors)
+        edit.save()
+        self.assertFalse(article.tags.exists())
+
+    def test_invalid_tags_do_not_create_records_and_duplicate_tag_admin_is_rejected(self):
+        from django.core.exceptions import ValidationError
+        form = ArticleAdminForm(data=self.data(tag_names="a" * 81))
+        self.assertFalse(form.is_valid())
+        self.assertIn("tag_names", form.errors)
+        self.assertFalse(Tag.objects.exists())
+        Tag.objects.create(name="İşçi")
+        with self.assertRaises(ValidationError):
+            Tag(name="işçi").full_clean()
+
+    def test_tag_search_deduplicates_articles_and_supports_turkish_and_hashtags(self):
+        article = self.article("is-hayati")
+        article.tags.set([Tag.objects.create(name="İşçi"), Tag.objects.create(name="İşçi hakları")])
+        self.article("diger")
+        for query in ("işçi", "İŞÇİ", "#işçi"):
+            with self.subTest(query=query):
+                response = self.client.get(reverse("articles:archive"), {"q": query})
+                self.assertEqual(list(response.context["page_obj"]), [article])
+                self.assertEqual(response.context["page_obj"].paginator.count, 1)
+
+    def test_tag_filter_combines_with_category_and_preserves_pagination(self):
+        tag = Tag.objects.create(name="Emek")
+        for index in range(10):
+            self.article(f"ceviri-etiket-{index}").tags.add(tag)
+        self.article("tartisma-etiket", section="tartisma").tags.add(tag)
+        self.article("etiketsiz")
+        response = self.client.get(reverse("articles:archive"), {"etiket": tag.pk, "bolum": "ceviri", "q": "emek"})
+        self.assertEqual(response.context["page_obj"].paginator.count, 10)
+        self.assertContains(response, f"etiket={tag.pk}")
+        self.assertIn("bolum=ceviri", response.context["querystring"])
+        page2 = self.client.get(reverse("articles:archive"), {"etiket": tag.pk, "bolum": "ceviri", "sayfa": 2})
+        self.assertEqual(len(page2.context["page_obj"]), 1)
+
+    def test_unpublished_articles_and_their_tags_do_not_leak(self):
+        public = self.article("yayinda")
+        visible = Tag.objects.create(name="Görünen etiket")
+        public.tags.add(visible)
+        hidden = Tag.objects.create(name="Gizli etiket")
+        self.article("taslak", status="draft").tags.add(hidden)
+        self.article("gelecekte", published_at=timezone.now() + timedelta(days=1)).tags.add(hidden)
+        response = self.client.get(reverse("articles:archive"))
+        self.assertEqual(list(response.context["filter_form"].fields["etiket"].queryset), [visible])
+        self.assertNotContains(response, "Gizli etiket")
+        response = self.client.get(reverse("articles:archive"), {"q": "Gizli etiket"})
+        self.assertEqual(response.context["page_obj"].paginator.count, 0)
+        response = self.client.get(reverse("articles:archive"), {"etiket": hidden.pk})
+        self.assertTrue(response.context["filter_form"].errors)
+
+    def test_clickable_tags_appear_on_slider_detail_cards_and_dossier_contents(self):
+        from bs4 import BeautifulSoup
+        dossier = Dossier.objects.create(title="Kent", slug="etiket-kent", status="published")
+        article = self.article("etiketli", dossier=dossier)
+        tag = Tag.objects.create(name="Barınma")
+        article.tags.add(tag)
+        href = reverse("articles:archive") + f"?etiket={tag.pk}"
+        for url in (reverse("articles:home"), reverse("articles:detail", args=[article.slug]),
+                    reverse("articles:archive"), reverse("articles:dossier_detail", args=[dossier.slug])):
+            with self.subTest(url=url):
+                response = self.client.get(url)
+                self.assertContains(response, f'href="{href}"')
+                soup = BeautifulSoup(response.content, "html.parser")
+                self.assertIsNone(soup.select_one("a a"), "Tag links must not be nested in article links")
+
+    def test_admin_article_and_dossier_inline_both_save_tags(self):
+        from django.contrib.auth import get_user_model
+        user = get_user_model().objects.create_superuser(username="tag-editor", email="tags@example.com")
+        self.client.force_login(user)
+        response = self.client.post(reverse("admin:articles_article_add"), self.data())
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(Article.objects.get(slug="etiketli-yazi").tags.count(), 2)
+        data = {"title": "Dosya", "slug": "etiketli-dosya", "status": "published", "order": "0",
+                "articles-TOTAL_FORMS": "1", "articles-INITIAL_FORMS": "0",
+                "articles-MIN_NUM_FORMS": "0", "articles-MAX_NUM_FORMS": "1000"}
+        for field, value in self.data(slug="dosya-etiketli", section="dosya").items():
+            data[f"articles-0-{field}"] = value
+        response = self.client.post(reverse("admin:articles_dossier_add"), data)
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(Article.objects.get(slug="dosya-etiketli").tags.count(), 2)
+        self.assertEqual(Tag.objects.count(), 2)
+
+    def test_published_article_tag_loading_avoids_per_article_queries(self):
+        from .views import published_articles
+        tag = Tag.objects.create(name="Ortak etiket")
+        for index in range(3):
+            self.article(f"etiket-sorgu-{index}").tags.add(tag)
+        with self.assertNumQueries(2):
+            for article in published_articles():
+                self.assertEqual(list(article.tags.all()), [tag])
 
 
 class ProductionStorageTests(TestCase):

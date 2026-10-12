@@ -35,6 +35,7 @@
 
                         <div class="hero-content">
                             <span class="eyebrow">{{ article.get_section_display }}</span>
+                            {% include "articles/_article_tags.html" %}
                             <h2>{{ article.title }}</h2>
 
                             {% if article.summary %}

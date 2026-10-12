@@ -1,5 +1,5 @@
 <article class="card">
-    <a class="card-link"
+    <a class="card-cover-link" aria-label="{{ article.title }}"
        href="{% url 'articles:detail' article.slug %}">
 
         {% if article.cover %}
@@ -11,16 +11,18 @@
             <div class="cover-placeholder"></div>
         {% endif %}
 
+    </a>
         <div class="card-body">
             <span class="eyebrow">
                 {{ article.get_section_display }}
             </span>
 
-            <h3>{{ article.title }}</h3>
+            {% include "articles/_article_tags.html" %}
+
+            <h3><a class="card-link" href="{% url 'articles:detail' article.slug %}">{{ article.title }}</a></h3>
 
             <p>{{ article.summary|truncatewords:24 }}</p>
 
             <span class="meta">{{ article.author_name }}</span>
         </div>
-    </a>
 </article>

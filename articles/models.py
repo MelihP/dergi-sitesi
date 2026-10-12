@@ -1,3 +1,6 @@
+import unicodedata
+
+from django.core.exceptions import ValidationError
 from django.core.validators import URLValidator
 from django.db import models
 from django.utils import timezone
@@ -103,6 +106,43 @@ class Dossier(models.Model):
         return self.title
 
 
+class Tag(models.Model):
+    name = models.CharField("Etiket", max_length=80)
+    key = models.CharField(max_length=160, unique=True, editable=False, blank=True)
+
+    class Meta:
+        ordering = ["name", "id"]
+        verbose_name = "Etiket"
+        verbose_name_plural = "Etiketler"
+
+    @staticmethod
+    def tidy_name(value):
+        return unicodedata.normalize("NFC", " ".join(value.split()))
+
+    @classmethod
+    def key_for(cls, value):
+        return cls.tidy_name(value).translate(str.maketrans({"I": "ı", "İ": "i"})).casefold()
+
+    def clean(self):
+        super().clean()
+        self.name = self.tidy_name(self.name)
+        self.key = self.key_for(self.name)
+        if not self.name:
+            raise ValidationError({"name": "Etiket adı boş bırakılamaz."})
+        if Tag.objects.filter(key=self.key).exclude(pk=self.pk).exists():
+            raise ValidationError({"name": "Bu etiket zaten var. Mevcut etiketi kullanın."})
+
+    def save(self, *args, **kwargs):
+        self.name = self.tidy_name(self.name)
+        self.key = self.key_for(self.name)
+        if kwargs.get("update_fields") is not None:
+            kwargs["update_fields"] = set(kwargs["update_fields"]) | {"name", "key"}
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return self.name
+
+
 class Article(models.Model):
     class Status(models.TextChoices):
         DRAFT = "draft", "Taslak"
@@ -132,6 +172,8 @@ class Article(models.Model):
         "Kısa açıklama",
         blank=True,
     )
+
+    tags = models.ManyToManyField(Tag, verbose_name="Etiketler", related_name="articles", blank=True)
 
     content = models.TextField(
         "Yazı metni",

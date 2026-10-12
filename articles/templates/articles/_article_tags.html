@@ -1,0 +1,9 @@
+{% with tags=article.tags.all %}
+    {% if tags %}
+        <ul class="article-tags" aria-label="Yazı etiketleri">
+            {% for tag in tags %}
+                <li><a class="article-tag" href="{% url 'articles:archive' %}?etiket={{ tag.pk }}">{{ tag.name }}</a></li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+{% endwith %}

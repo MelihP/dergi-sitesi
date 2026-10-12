@@ -85,6 +85,7 @@
             <ol class="dossier-contents" start="{{ page_obj.start_index }}">
                 {% for article in page_obj %}
                     <li>
+                        {% include "articles/_article_tags.html" %}
                         <a href="{% url 'articles:detail' article.slug %}">
                             <span class="eyebrow">{{ article.get_section_display }}</span>
                             <h3>{{ article.title }}</h3>

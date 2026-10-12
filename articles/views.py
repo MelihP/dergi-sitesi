@@ -7,7 +7,7 @@ from django.urls import reverse
 from django.utils import timezone
 
 from .archive_forms import ArchiveFilterForm
-from .models import Article, Concept, Dossier, SitePage, YouTubeVideo
+from .models import Article, Concept, Dossier, SitePage, Tag, YouTubeVideo
 
 
 def published_articles():
@@ -18,6 +18,7 @@ def published_articles():
             published_at__lte=timezone.now(),
         )
         .select_related("dossier")
+        .prefetch_related("tags")
         .order_by(
             "-published_at",
             "-id",
@@ -189,6 +190,7 @@ def archive(request):
 
         query = data.get("q")
         section = data.get("bolum")
+        tag = data.get("etiket")
         start = data.get("baslangic")
         end = data.get("bitis")
 
@@ -202,7 +204,11 @@ def archive(request):
                 | Q(
                     dossier__title__icontains=query
                 )
-            )
+                | Q(tags__key__icontains=Tag.key_for(query.lstrip("#")))
+            ).distinct()
+
+        if tag:
+            articles = articles.filter(tags=tag)
 
         if section:
             articles = articles.filter(

@@ -123,3 +123,14 @@ Kavram yokken de harfler görünür; yeni kavramlar eklendiğinde sayımlar gün
 5. **Sıralama** alanında küçük sayılar önce gelir; eşit sırada son eklenen video önce gösterilir. Görünürlüğü kapatmak videoyu silmez.
 
 Videolar YouTube üzerinde barındırılır; dosyayı siteye tekrar yüklemek veya API anahtarı girmek gerekmez. YouTube'a yüklenen her video otomatik eklenmez; gösterilecek bağlantılar panelden seçilir. Videonun YouTube ayarlarında başka sitelere yerleştirmeye izin verilmiş olmalıdır. Hiç etkin video yoksa bölüm görünmez.
+
+## Yazı etiketleri ve etiketle arama
+
+1. Güncellemeden sonra `python manage.py migrate --noinput` çalıştırın. `0011_tag_article_tags` etiket tablolarını ekler; mevcut yazıları değiştirmez. `build.sh` yayın sırasında bu işlemi otomatik yapar.
+2. **Yazılar → Ekle / Düzenle** ekranında **Etiketler** alanına `Emek, Barınma, Söyleşi` gibi virgülle ayrılmış etiketler girin. Dosya ekranındaki yazı formlarında da aynı alan bulunur.
+3. Yeni etiketler yazıyı kaydederken oluşturulur. Türkçe büyük/küçük harf farkları aynı etiket olarak değerlendirilir; aynı etiket tekrar oluşturulmaz. Alanı boşaltıp kaydetmek yazının etiketlerini kaldırır.
+4. Etiketler yazı kartlarında, manşette, yazının başlığında ve dosyanın içindekilerinde görünür. Etikete tıklamak **Tüm Yazılar** sayfasını o etikete göre filtreler.
+5. **Tüm Yazılar** arama kutusu etiket adlarında da arar. **Etiket** seçicisinden belirli bir etiket seçebilir; kategori, tarih ve metin aramasıyla birlikte kullanabilirsiniz. Yalnızca yayımlanmış yazılarda kullanılan etiketler okurlara sunulur.
+6. **Etiketler** yönetim bölümünden etiket adlarını düzenleyebilirsiniz; ad değişikliği o etiketi kullanan tüm yazılarda görünür. Mevcut yazılara etiket eklemek için ilgili yazıyı düzenleyin.
+
+Görsel tema, sıcak kiremit kırmızısı geçişli üst menü ve açık krem/şeftali içerik zeminleri kullanır. Başlıklar Zilla Slab 300, uzun metinler Work Sans olarak kalır.

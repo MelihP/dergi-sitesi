@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 from .forms import ArticleAdminForm, DossierAdminForm
-from .models import Article, Concept, Dossier, SocialPost, SitePage, YouTubeVideo
+from .models import Article, Concept, Dossier, SocialPost, SitePage, Tag, YouTubeVideo
 
 
 class DossierArticleInline(admin.StackedInline):
@@ -12,6 +12,7 @@ class DossierArticleInline(admin.StackedInline):
         ("title", "slug"),
         "author_name",
         "summary",
+        "tag_names",
         "content",
         "cover",
         ("section", "status"),
@@ -163,6 +164,8 @@ class ArticleAdmin(admin.ModelAdmin):
         "author_name",
         "content",
         "summary",
+        "tags__name",
+        "tags__key",
         "dossier__title",
     )
 
@@ -183,6 +186,12 @@ class ArticleAdmin(admin.ModelAdmin):
     date_hierarchy = "published_at"
 
     save_on_top = True
+
+
+@admin.register(Tag)
+class TagAdmin(admin.ModelAdmin):
+    search_fields = ("name", "key")
+    list_display = ("name",)
 
 
 @admin.register(Concept)

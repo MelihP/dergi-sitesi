@@ -1,11 +1,17 @@
 from django import forms
 from django.template.defaultfilters import linebreaks
 
-from .models import Article, Dossier
+from .models import Article, Dossier, Tag
 from .richtext import clean_html, plain_text
 
 
 class ArticleAdminForm(forms.ModelForm):
+    tag_names = forms.CharField(
+        label="Etiketler", required=False, max_length=1000,
+        widget=forms.TextInput(attrs={"placeholder": "Emek, Barınma, Söyleşi", "class": "vTextField"}),
+        help_text="Etiketleri virgülle ayırın. Yeni etiketler kaydedilirken otomatik oluşturulur; mevcut etiketler tekrar kullanılır.",
+    )
+
     content = forms.CharField(
         label="Yazı metni",
         widget=forms.Textarea(
@@ -23,6 +29,7 @@ class ArticleAdminForm(forms.ModelForm):
     class Meta:
         model = Article
         fields = "__all__"
+        exclude = ["tags"]
         help_texts = {
             "cover": "Tam ekran manşet için en az 1920 × 1080 piksel, tercihen 2560 × 1440 piksel yatay fotoğraf yükleyin. Küçük fotoğraflar büyütüldüğünde bulanık görünür.",
         }
@@ -42,8 +49,8 @@ class ArticleAdminForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
         if not self.is_bound and self.instance.pk:
+            self.initial["tag_names"] = ", ".join(tag.name for tag in self.instance.tags.all())
             if self.instance.content_html:
                 html = self.instance.content_html
             else:
@@ -59,6 +66,28 @@ class ArticleAdminForm(forms.ModelForm):
         if cleaned.get("section") == Article.Section.DOSYA and not cleaned.get("dossier"):
             self.add_error("dossier", "Dosya yazısı için bir dosya seçin. Önce Dosyalar bölümünden dosya oluşturabilirsiniz.")
         return cleaned
+
+    def clean_tag_names(self):
+        names = []
+        seen = set()
+        for value in self.cleaned_data.get("tag_names", "").replace("\n", ",").split(","):
+            name = Tag.tidy_name(value)
+            if not name:
+                continue
+            if len(name) > 80:
+                raise forms.ValidationError("Her etiket en fazla 80 karakter olabilir.")
+            key = Tag.key_for(name)
+            if key not in seen:
+                names.append(name)
+                seen.add(key)
+        return names
+
+    def _save_m2m(self):
+        super()._save_m2m()
+        if "tag_names" in self.cleaned_data:
+            tags = [Tag.objects.get_or_create(key=Tag.key_for(name), defaults={"name": name})[0]
+                    for name in self.cleaned_data["tag_names"]]
+            self.instance.tags.set(tags)
 
     def clean_content(self):
         html = clean_html(
