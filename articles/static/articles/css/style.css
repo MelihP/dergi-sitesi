@@ -38,6 +38,7 @@
     --surface: #eee7e2;
     --surface-strong: #fcfaf7;
     --text: #2f2620;
+    --brand-ink: #3d2a21;
     --muted: #78695f;
     --accent: #96593a;
     --accent-dark: #75472f;
@@ -1971,7 +1972,7 @@ select:focus-visible {
 .hero h2, .dossier-hero h1 { text-shadow: 0 2px 18px rgba(0, 0, 0, 0.28); }
 
 /* Coffee and cinnamon accents from the reference; layout stays unchanged. */
-.logo, .footer-logo { color: #3d2a21; }
+.logo, .footer-logo { color: var(--brand-ink); }
 .site-header .main-nav a, .home-page .main-nav a { color: #5e493b; }
 .site-header .main-nav a:hover, .home-page .main-nav a:hover { color: var(--accent); }
 .site-header .main-nav a[href="/yazilar/"], .home-page .main-nav a[href="/yazilar/"] { color: #8b5135; }
@@ -1990,6 +1991,16 @@ select:focus-visible {
     --home-social-bar-height: 42px;
 }
 .home-with-slider-gap .site-header { position: relative; }
+.home-with-slider-gap .site-header::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    height: var(--home-slider-gap);
+    background: var(--brand-ink);
+    pointer-events: none;
+}
 .home-with-slider-gap .container { padding-top: var(--home-slider-gap); }
 .home-with-slider-gap .featured-slider :is(.hero-image, .hero-placeholder, .hero-overlay) {
     -webkit-mask-image: none;
