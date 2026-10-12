@@ -1845,9 +1845,37 @@ select:focus-visible {
     position: absolute;
     top: auto;
     width: 100%;
-    background: var(--header-gradient);
-    border-bottom-color: rgba(117, 71, 47, 0.14);
+    background: transparent;
+    border-bottom: 0;
+    backdrop-filter: none;
+    isolation: isolate;
     color: var(--text);
+}
+.home-page .site-header::before {
+    content: "";
+    position: absolute;
+    inset: 0 0 -88px;
+    z-index: -1;
+    pointer-events: none;
+    background: var(--header-gradient);
+    -webkit-mask-image: linear-gradient(
+        to bottom,
+        #000 0%,
+        #000 calc(100% - 88px),
+        rgba(0, 0, 0, 0.92) calc(100% - 66px),
+        rgba(0, 0, 0, 0.55) calc(100% - 40px),
+        rgba(0, 0, 0, 0.12) calc(100% - 16px),
+        transparent 100%
+    );
+    mask-image: linear-gradient(
+        to bottom,
+        #000 0%,
+        #000 calc(100% - 88px),
+        rgba(0, 0, 0, 0.92) calc(100% - 66px),
+        rgba(0, 0, 0, 0.55) calc(100% - 40px),
+        rgba(0, 0, 0, 0.12) calc(100% - 16px),
+        transparent 100%
+    );
 }
 .home-page .main-nav a { color: var(--text); }
 .home-page .featured-slider .hero {
