@@ -1986,7 +1986,7 @@ select:focus-visible {
 
 /* A short page-background strip separates the home navigation from its cover. */
 .home-with-slider-gap {
-    --home-slider-gap: 28px;
+    --home-slider-gap: 7px;
     --home-social-bar-height: 42px;
 }
 .home-with-slider-gap .site-header { position: relative; }
@@ -2002,6 +2002,6 @@ select:focus-visible {
     padding-top: 64px;
 }
 @media (max-width: 680px) {
-    .home-with-slider-gap { --home-slider-gap: 20px; --home-social-bar-height: 46px; }
+    .home-with-slider-gap { --home-slider-gap: 7px; --home-social-bar-height: 46px; }
     .home-with-slider-gap .featured-slider .hero { padding-top: 40px; }
 }
