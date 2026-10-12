@@ -2,7 +2,7 @@
 
 {% block title %}{% if section_title %}{{ section_title }} | {% endif %}Başka Medya{% endblock %}
 
-{% block body_class %}home-page{% endblock %}
+{% block body_class %}home-page{% if not section_title %} home-with-slider-gap{% endif %}{% endblock %}
 
 {% block content %}
 

@@ -1983,3 +1983,25 @@ select:focus-visible {
 .header-search button { background: #eaded5; border-color: #c8ad9b; color: #75472f; }
 .header-search button:hover { background: #e1ccbc; border-color: #b9957b; color: #5e3d2e; }
 .article-text a { color: #895236; }
+
+/* A short page-background strip separates the home navigation from its cover. */
+.home-with-slider-gap {
+    --home-slider-gap: 28px;
+    --home-social-bar-height: 42px;
+}
+.home-with-slider-gap .site-header { position: relative; }
+.home-with-slider-gap .container { padding-top: var(--home-slider-gap); }
+.home-with-slider-gap .featured-slider :is(.hero-image, .hero-placeholder, .hero-overlay) {
+    -webkit-mask-image: none;
+    mask-image: none;
+}
+.home-with-slider-gap .featured-slider .hero {
+    background: var(--dark);
+    min-height: 460px;
+    min-height: max(460px, calc(100svh - var(--slider-header-height) - var(--home-social-bar-height) - var(--home-slider-gap)));
+    padding-top: 64px;
+}
+@media (max-width: 680px) {
+    .home-with-slider-gap { --home-slider-gap: 20px; --home-social-bar-height: 46px; }
+    .home-with-slider-gap .featured-slider .hero { padding-top: 40px; }
+}
