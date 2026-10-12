@@ -1838,3 +1838,15 @@ select:focus-visible {
         background: linear-gradient(0deg, rgba(16, 14, 13, 0.92), rgba(16, 14, 13, 0.48) 70%, rgba(16, 14, 13, 0.2));
     }
 }
+
+/* Videos published from the admin appear directly below the home slider. */
+.home-video-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; }
+.home-video-card { min-width: 0; overflow: hidden; background: var(--surface-strong); border: 1px solid var(--border); border-radius: 8px; }
+.home-video-player { aspect-ratio: 16 / 9; min-height: 200px; background: #161616; }
+.home-video-player iframe { display: block; width: 100%; height: 100%; border: 0; }
+.home-video-content { padding: 20px; }
+.home-video-content h3 { margin: 0 0 12px; font-size: clamp(22px, 2vw, 28px); overflow-wrap: anywhere; }
+.home-video-content p { margin: 0 0 16px; color: var(--muted); font-size: 15px; overflow-wrap: anywhere; white-space: pre-line; }
+.home-videos .section-heading { flex-wrap: wrap; gap: 16px; }
+@media (max-width: 1000px) { .home-video-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 680px) { .home-video-grid { grid-template-columns: 1fr; } }

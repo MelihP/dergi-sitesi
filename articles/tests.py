@@ -9,7 +9,7 @@ from django.utils import timezone
 
 from .checks import persistent_storage_check
 from .forms import ArticleAdminForm
-from .models import Article, Concept, Dossier, SitePage
+from .models import Article, Concept, Dossier, SitePage, YouTubeVideo
 
 
 class MagazineTests(TestCase):
@@ -63,7 +63,7 @@ class MagazineTests(TestCase):
         detail = self.client.get(reverse("articles:dossier_detail", args=["emek"]))
         self.assertEqual([a.slug for a in detail.context["page_obj"]], ["ilk", "ikinci"])
         self.assertContains(detail, 'class="dossier-contents"')
-        self.assertNotContains(detail, "baska")
+        self.assertNotContains(detail, reverse("articles:detail", args=["baska"]))
         self.assertEqual(self.client.get(reverse("articles:dossier_detail", args=["gizli"])).status_code, 404)
 
     def test_dossier_article_admin_requires_a_folder(self):
@@ -327,3 +327,90 @@ class DossierSliderTests(TestCase):
         self.assertContains(response, "data-slider")
         self.assertContains(response, "hero-placeholder")
         self.assertNotContains(response, "data-next")
+
+
+class YouTubeVideoTests(TestCase):
+    def test_supported_links_produce_the_same_safe_player_url(self):
+        urls = [
+            "https://www.youtube.com/watch?v=AbCdEfGhI_1&feature=share",
+            "https://youtu.be/AbCdEfGhI_1?si=shared-link",
+            "https://m.youtube.com/watch?v=AbCdEfGhI_1",
+            "https://www.youtube.com/shorts/AbCdEfGhI_1",
+            "https://www.youtube.com/live/AbCdEfGhI_1?si=shared-link",
+            "https://www.youtube.com/embed/AbCdEfGhI_1",
+            "https://www.youtube-nocookie.com/embed/AbCdEfGhI_1",
+        ]
+        for url in urls:
+            with self.subTest(url=url):
+                video = YouTubeVideo(title="Video", youtube_url=url)
+                video.full_clean()
+                self.assertEqual(video.embed_url, "https://www.youtube-nocookie.com/embed/AbCdEfGhI_1?playsinline=1")
+
+    def test_invalid_links_are_rejected(self):
+        from django.core.exceptions import ValidationError
+        urls = [
+            "https://youtube.com.evil.example/watch?v=AbCdEfGhI_1",
+            "https://example.com/watch?v=AbCdEfGhI_1",
+            "https://www.youtube.com/@baskamedya",
+            "https://www.youtube.com/playlist?list=AbCdEfGhI_1",
+            "https://www.youtube.com/watch?v=too-short",
+            "https://www.youtube.com/watch?v=%3Cscript%3E",
+            "javascript:alert(1)",
+        ]
+        for url in urls:
+            with self.subTest(url=url):
+                video = YouTubeVideo(title="Video", youtube_url=url)
+                with self.assertRaises(ValidationError):
+                    video.full_clean()
+                self.assertEqual(video.embed_url, "")
+
+    def test_active_videos_appear_between_slider_and_dossiers_in_order(self):
+        Dossier.objects.create(title="Dosya", slug="video-dosyasi", status="published")
+        later = YouTubeVideo.objects.create(title="İkinci video", youtube_url="https://youtu.be/AbCdEfGhI_1", order=2)
+        first = YouTubeVideo.objects.create(title="Birinci <video>", youtube_url="https://youtu.be/JkLmNoPqR_2", order=1)
+        YouTubeVideo.objects.create(title="Gizli video", youtube_url=first.youtube_url, is_active=False)
+        response = self.client.get(reverse("articles:home"))
+        self.assertEqual(list(response.context["home_videos"]), [first, later])
+        self.assertContains(response, first.embed_url)
+        self.assertContains(response, "Birinci &lt;video&gt;")
+        self.assertNotContains(response, "Gizli video")
+        html = response.content.decode()
+        self.assertLess(html.index('class="featured-slider"'), html.index('id="home-videos-title"'))
+        self.assertLess(html.index('id="home-videos-title"'), html.index('dossier-home-section'))
+        self.assertContains(response, 'allowfullscreen')
+        self.assertContains(response, 'referrerpolicy="strict-origin-when-cross-origin"')
+
+    def test_no_active_videos_hides_section_and_section_pages_do_not_show_it(self):
+        response = self.client.get(reverse("articles:home"))
+        self.assertNotContains(response, 'id="home-videos-title"')
+        YouTubeVideo.objects.create(title="Video", youtube_url="https://youtu.be/AbCdEfGhI_1")
+        for section in ["ceviri", "tartisma"]:
+            response = self.client.get(reverse("articles:home"), {"bolum": section})
+            self.assertNotContains(response, 'id="home-videos-title"')
+
+    def test_admin_can_publish_and_hide_video(self):
+        from django.contrib.auth import get_user_model
+        user = get_user_model().objects.create_superuser(username="video-editor", email="video@example.com")
+        self.client.force_login(user)
+        response = self.client.post(reverse("admin:articles_youtubevideo_add"), {
+            "title": "Panelden eklenen video", "youtube_url": "https://youtu.be/AbCdEfGhI_1",
+            "description": "Açıklama", "order": "0", "is_active": "on", "_save": "Kaydet",
+        })
+        self.assertEqual(response.status_code, 302)
+        video = YouTubeVideo.objects.get(title="Panelden eklenen video")
+        self.assertContains(self.client.get(reverse("articles:home")), video.embed_url)
+        video.is_active = False
+        video.save()
+        self.assertNotContains(self.client.get(reverse("articles:home")), video.embed_url)
+
+    def test_admin_displays_error_for_non_video_url(self):
+        from django.contrib.auth import get_user_model
+        user = get_user_model().objects.create_superuser(username="video-checker", email="check@example.com")
+        self.client.force_login(user)
+        response = self.client.post(reverse("admin:articles_youtubevideo_add"), {
+            "title": "Yanlış bağlantı", "youtube_url": "https://example.com/not-youtube",
+            "order": "0", "is_active": "on", "_save": "Kaydet",
+        })
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Geçerli bir YouTube video bağlantısı girin.")
+        self.assertFalse(YouTubeVideo.objects.exists())

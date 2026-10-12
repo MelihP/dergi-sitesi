@@ -7,7 +7,7 @@ from django.urls import reverse
 from django.utils import timezone
 
 from .archive_forms import ArchiveFilterForm
-from .models import Article, Concept, Dossier, SitePage
+from .models import Article, Concept, Dossier, SitePage, YouTubeVideo
 
 
 def published_articles():
@@ -107,6 +107,7 @@ def home(request):
     }
 
     if not section_title:
+        context["home_videos"] = YouTubeVideo.objects.filter(is_active=True)
         context["dictionary"] = dictionary_context("A")
 
     return render(

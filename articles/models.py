@@ -3,6 +3,7 @@ from django.db import models
 from django.utils import timezone
 
 from .richtext import render_content
+from .youtube import validate_youtube_url, youtube_video_id
 
 
 class Dossier(models.Model):
@@ -357,6 +358,37 @@ class SitePage(models.Model):
         ordering = ["order", "title"]
         verbose_name = "Kurumsal sayfa"
         verbose_name_plural = "Kurumsal sayfalar"
+
+    def __str__(self):
+        return self.title
+
+
+class YouTubeVideo(models.Model):
+    title = models.CharField("Video başlığı", max_length=200)
+    youtube_url = models.URLField(
+        "YouTube video bağlantısı", max_length=500,
+        validators=[validate_youtube_url],
+        help_text="YouTube'daki videonun Paylaş bağlantısını yapıştırın. Normal video, Shorts ve canlı yayın bağlantıları desteklenir.",
+    )
+    description = models.TextField("Kısa açıklama", blank=True)
+    order = models.PositiveIntegerField("Sıralama", default=0, help_text="Küçük sayılar önce gösterilir.")
+    is_active = models.BooleanField("Ana sayfada göster", default=True)
+    created_at = models.DateTimeField("Eklenme zamanı", auto_now_add=True)
+
+    class Meta:
+        ordering = ["order", "-created_at", "-id"]
+        verbose_name = "YouTube videosu"
+        verbose_name_plural = "YouTube videoları"
+
+    @property
+    def embed_url(self):
+        video_id = youtube_video_id(self.youtube_url)
+        return f"https://www.youtube-nocookie.com/embed/{video_id}?playsinline=1" if video_id else ""
+
+    @property
+    def watch_url(self):
+        video_id = youtube_video_id(self.youtube_url)
+        return f"https://www.youtube.com/watch?v={video_id}" if video_id else ""
 
     def __str__(self):
         return self.title

@@ -112,3 +112,14 @@ seçilen harfin aktif kavramları alfabetik sırayla ve açıklamalarıyla göst
 I ve İ ayrı harflerdir; Ç, Ğ, Ö, Ş ve Ü desteklenir. Kavramları yönetim panelindeki
 **Kavramlar** bölümünden ekleyin. Açıklamaları iki veya üç cümleyle yazabilirsiniz.
 Kavram yokken de harfler görünür; yeni kavramlar eklendiğinde sayımlar güncellenir.
+
+
+## Ana sayfa YouTube videoları
+
+1. Güncelleme sonrasında `python manage.py migrate --noinput` çalıştırın. Mevcut `build.sh` bunu yayın sırasında otomatik çalıştırır.
+2. Yönetim panelinde **YouTube videoları → Ekle** bölümünü açın.
+3. Video başlığını ve YouTube'daki **Paylaş → Bağlantıyı kopyala** adresini girin. İsteğe bağlı kısa açıklama ekleyin.
+4. **Ana sayfada göster** işaretliyken kaydedin. Video, ana sayfa slider'ının hemen altındaki **Videolar** bölümünde izlenebilir.
+5. **Sıralama** alanında küçük sayılar önce gelir; eşit sırada son eklenen video önce gösterilir. Görünürlüğü kapatmak videoyu silmez.
+
+Videolar YouTube üzerinde barındırılır; dosyayı siteye tekrar yüklemek veya API anahtarı girmek gerekmez. YouTube'a yüklenen her video otomatik eklenmez; gösterilecek bağlantılar panelden seçilir. Videonun YouTube ayarlarında başka sitelere yerleştirmeye izin verilmiş olmalıdır. Hiç etkin video yoksa bölüm görünmez.

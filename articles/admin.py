@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 from .forms import ArticleAdminForm, DossierAdminForm
-from .models import Article, Concept, Dossier, SocialPost, SitePage
+from .models import Article, Concept, Dossier, SocialPost, SitePage, YouTubeVideo
 
 
 class DossierArticleInline(admin.StackedInline):
@@ -278,3 +278,13 @@ class SitePageAdmin(admin.ModelAdmin):
     list_editable = ("is_published", "order")
     prepopulated_fields = {"slug": ("title",)}
     search_fields = ("title", "content")
+
+
+@admin.register(YouTubeVideo)
+class YouTubeVideoAdmin(admin.ModelAdmin):
+    list_display = ("title", "order", "is_active", "created_at")
+    list_editable = ("order", "is_active")
+    list_filter = ("is_active",)
+    search_fields = ("title", "description")
+    readonly_fields = ("created_at",)
+    fields = ("title", "youtube_url", "description", "order", "is_active", "created_at")

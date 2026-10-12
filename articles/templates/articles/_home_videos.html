@@ -1,0 +1,30 @@
+{% if home_videos %}
+<section class="articles-section home-videos" aria-labelledby="home-videos-title">
+    <div class="section-heading">
+        <div>
+            <span class="eyebrow">BAŞKA MEDYA VİDEO</span>
+            <h2 id="home-videos-title">Videolar</h2>
+        </div>
+        <a class="section-link" href="https://www.youtube.com/@baskamedya" target="_blank" rel="noopener noreferrer">YouTube kanalımız ↗</a>
+    </div>
+    <div class="home-video-grid">
+        {% for video in home_videos %}
+        <article class="home-video-card">
+            <div class="home-video-player">
+                <iframe src="{{ video.embed_url }}"
+                        title="{{ video.title }} — YouTube videosu"
+                        width="560" height="315" loading="lazy"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                        referrerpolicy="strict-origin-when-cross-origin"
+                        allowfullscreen></iframe>
+            </div>
+            <div class="home-video-content">
+                <h3>{{ video.title }}</h3>
+                {% if video.description %}<p>{{ video.description }}</p>{% endif %}
+                <a class="section-link" href="{{ video.watch_url }}" target="_blank" rel="noopener noreferrer">YouTube’da aç ↗</a>
+            </div>
+        </article>
+        {% endfor %}
+    </div>
+</section>
+{% endif %}
