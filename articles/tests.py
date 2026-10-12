@@ -9,7 +9,7 @@ from django.utils import timezone
 
 from .checks import persistent_storage_check
 from .forms import ArticleAdminForm
-from .models import Article, Concept, Dossier, SitePage, YouTubeVideo
+from .models import Article, Concept, Dossier, SitePage, SocialPost, YouTubeVideo
 
 
 class MagazineTests(TestCase):
@@ -143,6 +143,88 @@ class SocialPanelTests(TestCase):
         response = self.client.get(reverse("articles:home"))
         self.assertContains(response, "Henüz paylaşım eklenmedi.", count=3)
         self.assertContains(response, "Instagram hesabına git")
+
+
+class SocialPreviewTests(TestCase):
+    def test_youtube_links_have_automatic_cover_without_an_upload(self):
+        for url in ("https://youtu.be/AbCdEfGhI_1?si=share", "https://www.youtube.com/shorts/AbCdEfGhI_1",
+                    "https://www.youtube.com/watch?v=AbCdEfGhI_1"):
+            with self.subTest(url=url):
+                post = SocialPost(platform="youtube", url=url)
+                self.assertEqual(post.preview, {"type": "image", "url": "https://i.ytimg.com/vi/AbCdEfGhI_1/hqdefault.jpg"})
+
+    def test_instagram_and_x_links_produce_canonical_embeds(self):
+        cases = [
+            ("instagram", "https://www.instagram.com/p/ABC_def12/?igsh=tracking", "https://www.instagram.com/p/ABC_def12/"),
+            ("instagram", "https://instagram.com/reel/ABC_def12/", "https://www.instagram.com/reel/ABC_def12/"),
+            ("instagram", "https://instagram.com/reels/ABC_def12/", "https://www.instagram.com/reel/ABC_def12/"),
+            ("x", "https://x.com/baskamedyainfo/status/1234567890?s=20", "https://twitter.com/i/web/status/1234567890"),
+            ("x", "https://twitter.com/i/web/status/1234567890", "https://twitter.com/i/web/status/1234567890"),
+            ("x", "https://mobile.twitter.com/editor/status/1234567890/photo/1", "https://twitter.com/i/web/status/1234567890"),
+        ]
+        for platform, url, canonical in cases:
+            with self.subTest(url=url):
+                self.assertEqual(SocialPost(platform=platform, url=url).preview, {"type": platform, "url": canonical})
+
+    def test_profiles_unsupported_and_unsafe_links_keep_the_plain_link(self):
+        cases = [
+            ("instagram", "https://instagram.com/baskamedyainfo/"),
+            ("instagram", "https://instagram.com.evil.example/p/ABC/"),
+            ("instagram", "https://instagram.com@evil.example/p/ABC/"),
+            ("instagram", "https://user:password@instagram.com/p/ABC/"),
+            ("instagram", "https://instagram.com:invalid/p/ABC/"),
+            ("instagram", "https://instagram.com/p/%3Cscript%3E/"),
+            ("instagram", "javascript:alert(1)"),
+            ("x", "https://x.com/baskamedyainfo"),
+            ("x", "https://example.com/editor/status/123"),
+            ("x", "https://x.com/editor/status/not-a-number"),
+            ("youtube", "https://youtube.com/@baskamedya"),
+            ("youtube", "https://youtube.com.evil.example/watch?v=AbCdEfGhI_1"),
+            ("unknown", "https://instagram.com/p/ABC/"),
+        ]
+        for platform, url in cases:
+            with self.subTest(url=url):
+                self.assertEqual(SocialPost(platform=platform, url=url).preview, {})
+
+    def test_optional_uploaded_image_overrides_automatic_preview(self):
+        post = SocialPost(platform="instagram", url="https://instagram.com/p/ABC/", image="social/custom.jpg")
+        self.assertEqual(post.preview, {"type": "image", "url": post.image.url})
+
+    def test_previews_render_for_existing_posts_without_database_backfill(self):
+        SocialPost.objects.create(platform="youtube", title="Video", url="https://youtu.be/AbCdEfGhI_1")
+        instagram = SocialPost.objects.create(platform="instagram", title="Fotoğraf", url="https://instagram.com/p/ABC/")
+        SocialPost.objects.create(platform="x", title="Haber", url="https://x.com/editor/status/1234567890")
+        response = self.client.get(reverse("articles:home"))
+        self.assertContains(response, 'src="https://i.ytimg.com/vi/AbCdEfGhI_1/hqdefault.jpg"')
+        self.assertContains(response, 'data-social-embed="instagram"')
+        self.assertContains(response, 'data-post-url="https://www.instagram.com/p/ABC/"')
+        self.assertContains(response, 'data-social-embed="x"')
+        self.assertContains(response, 'data-post-url="https://twitter.com/i/web/status/1234567890"')
+        self.assertContains(response, 'aria-expanded="false"')
+        instagram.url = "https://instagram.com/reel/NEW/"
+        instagram.save()
+        self.assertContains(self.client.get(reverse("articles:home")), 'data-post-url="https://www.instagram.com/reel/NEW/"')
+
+    def test_admin_accepts_links_without_image_and_explains_automatic_previews(self):
+        from django.contrib.auth import get_user_model
+        user = get_user_model().objects.create_superuser(username="social-editor", email="social@example.com")
+        self.client.force_login(user)
+        response = self.client.get(reverse("admin:articles_socialpost_add"))
+        self.assertFalse(response.context["adminform"].form.fields["image"].required)
+        self.assertContains(response, "Özel görsel (isteğe bağlı)")
+        self.assertContains(response, "otomatik gösterilir")
+        for platform, url in [("youtube", "https://youtu.be/AbCdEfGhI_1"),
+                              ("instagram", "https://instagram.com/p/ABC/"),
+                              ("x", "https://x.com/editor/status/1234567890")]:
+            with self.subTest(platform=platform):
+                response = self.client.post(reverse("admin:articles_socialpost_add"), {
+                    "platform": platform, "title": f"Yeni {platform}", "url": url,
+                    "order": "0", "is_active": "on", "_save": "Kaydet",
+                })
+                self.assertEqual(response.status_code, 302)
+                post = SocialPost.objects.get(title=f"Yeni {platform}")
+                self.assertFalse(post.image)
+                self.assertTrue(post.preview)
 
 
 class UnifiedAboutTests(TestCase):

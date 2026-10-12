@@ -225,6 +225,15 @@ class ConceptAdmin(admin.ModelAdmin):
 
 @admin.register(SocialPost)
 class SocialPostAdmin(admin.ModelAdmin):
+    def get_form(self, request, obj=None, **kwargs):
+        form = super().get_form(request, obj, **kwargs)
+        if "image" in form.base_fields:
+            form.base_fields["image"].label = "Özel görsel (isteğe bağlı)"
+            form.base_fields["image"].help_text = "Boş bırakabilirsiniz. Yalnızca otomatik önizleme yerine kendi görselinizi kullanmak isterseniz yükleyin."
+        if "url" in form.base_fields:
+            form.base_fields["url"].help_text = "Profil adresi yerine gönderinin veya videonun Paylaş bağlantısını yapıştırın. YouTube kapağı, Instagram ve X gönderi önizlemesi otomatik gösterilir. Gizli, silinmiş veya yerleştirmeye kapalı gönderiler önizlenemeyebilir."
+        return form
+
     list_display = (
         "title",
         "platform",
@@ -256,15 +265,10 @@ class SocialPostAdmin(admin.ModelAdmin):
         "created_at",
     )
 
-    fields = (
-        "platform",
-        "title",
-        "description",
-        "image",
-        "url",
-        "order",
-        "is_active",
-        "created_at",
+    fieldsets = (
+        (None, {"fields": ("platform", "url", "title", "description", "order", "is_active")}),
+        ("Özel görsel (isteğe bağlı)", {"fields": ("image",), "classes": ("collapse",)}),
+        ("Sistem bilgileri", {"fields": ("created_at",), "classes": ("collapse",)}),
     )
 
 

@@ -1654,7 +1654,7 @@ select:focus-visible {
     position: fixed;
     right: max(20px, env(safe-area-inset-right));
     bottom: calc(max(20px, env(safe-area-inset-bottom)) + 74px);
-    width: min(360px, calc(100vw - 40px));
+    width: min(390px, calc(100vw - 40px));
     max-height: calc(100dvh - 124px);
     display: flex;
     flex-direction: column;
@@ -1674,6 +1674,15 @@ select:focus-visible {
 .social-panel-body { overflow-y: auto; overscroll-behavior: contain; padding: 16px 20px; min-height: 0; }
 .social-post { padding: 0 0 16px; margin-bottom: 16px; border-bottom: 1px solid var(--border); }
 .social-post-image { width: 100%; max-height: 180px; object-fit: contain; background: var(--bg); border-radius: 6px; }
+.social-feed, .social-embed { min-width: 0; max-width: 100%; }
+.social-embed { margin-bottom: 12px; overflow-wrap: anywhere; }
+.social-embed blockquote { margin: 0; padding: 0; border: 0; }
+.social-embed iframe, .social-embed .instagram-media, .social-embed .twitter-tweet {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+}
 .social-post h3 { margin: 12px 0 8px; font-size: 20px; overflow-wrap: anywhere; }
 .social-post p { font-size: 14px; margin: 0 0 8px; }
 .social-post-action, .social-profile-link { font-size: 13px; font-weight: bold; color: var(--text); }

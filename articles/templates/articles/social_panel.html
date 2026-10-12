@@ -65,17 +65,27 @@
 
                 {% for post in group.posts %}
                     <article class="social-post">
+                        {% with preview=post.preview %}
+                            {% if preview.type == "instagram" or preview.type == "x" %}
+                                <div class="social-embed"
+                                     data-social-embed="{{ preview.type }}"
+                                     data-post-url="{{ preview.url }}">
+                                    <a href="{{ post.url }}" target="_blank" rel="noopener noreferrer">
+                                        {{ post.get_platform_display }} gönderisini görüntüle ↗
+                                    </a>
+                                </div>
+                            {% endif %}
                         <a
                             class="social-post-link"
                             href="{{ post.url }}"
                             target="_blank"
                             rel="noopener noreferrer">
 
-                            {% if post.image %}
+                            {% if preview.type == "image" %}
                                 <img
                                     class="social-post-image"
-                                    src="{{ post.image.url }}"
-                                    alt=""
+                                    src="{{ preview.url }}"
+                                    alt="{{ post.title }}"
                                     loading="lazy">
                             {% endif %}
 
@@ -93,6 +103,7 @@
                                 </span>
                             </div>
                         </a>
+                        {% endwith %}
                     </article>
                 {% empty %}
                     <p class="social-empty">

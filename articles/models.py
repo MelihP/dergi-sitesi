@@ -3,6 +3,7 @@ from django.db import models
 from django.utils import timezone
 
 from .richtext import render_content
+from .social_preview import social_preview
 from .youtube import validate_youtube_url, youtube_video_id
 
 
@@ -338,6 +339,12 @@ class SocialPost(models.Model):
         ]
         verbose_name = "Sosyal medya gönderisi"
         verbose_name_plural = "Sosyal medya gönderileri"
+
+    @property
+    def preview(self):
+        if self.image:
+            return {"type": "image", "url": self.image.url}
+        return social_preview(self.platform, self.url)
 
     def __str__(self):
         return (

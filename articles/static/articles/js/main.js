@@ -304,6 +304,68 @@ document.querySelectorAll("[data-slider]").forEach((slider) => {
     if (!launcher || !panel) return;
     const closeButton = document.getElementById("social-close");
     const tabs = Array.from(panel.querySelectorAll('[role="tab"]'));
+    const scripts = new Map();
+    const loadEmbedScript = (provider) => {
+        if (scripts.has(provider)) return scripts.get(provider);
+        const promise = new Promise((resolve, reject) => {
+            const script = document.createElement("script");
+            script.src = provider === "instagram"
+                ? "https://www.instagram.com/embed.js"
+                : "https://platform.twitter.com/widgets.js";
+            script.async = true;
+            const fail = () => {
+                window.clearTimeout(timeout);
+                script.remove();
+                reject(new Error("Gönderi önizlemesi yüklenemedi."));
+            };
+            const timeout = window.setTimeout(fail, 15000);
+            script.onload = () => { window.clearTimeout(timeout); resolve(); };
+            script.onerror = fail;
+            document.head.appendChild(script);
+        });
+        scripts.set(provider, promise);
+        promise.catch(() => scripts.delete(provider));
+        return promise;
+    };
+    const loadEmbeds = (feed) => {
+        if (!feed || feed.hidden || panel.hidden) return;
+        const embeds = Array.from(feed.querySelectorAll("[data-social-embed]"));
+        const providers = new Set(embeds.map((embed) => embed.dataset.socialEmbed));
+        providers.forEach((provider) => {
+            if (!["x", "instagram"].includes(provider)) return;
+            loadEmbedScript(provider).then(() => {
+                if (feed.hidden || panel.hidden) return;
+                if (provider === "x" && !window.twttr?.widgets?.load) return;
+                if (provider === "instagram" && !window.instgrm?.Embeds?.process) return;
+                embeds.filter((embed) => embed.dataset.socialEmbed === provider).forEach((embed) => {
+                    if (embed.dataset.initialized) return;
+                    const blockquote = document.createElement("blockquote");
+                    const link = document.createElement("a");
+                    link.href = embed.dataset.postUrl;
+                    link.textContent = provider === "x" ? "X gönderisini görüntüle ↗" : "Instagram gönderisini görüntüle ↗";
+                    link.target = "_blank";
+                    link.rel = "noopener noreferrer";
+                    blockquote.appendChild(link);
+                    if (provider === "instagram") {
+                        blockquote.className = "instagram-media";
+                        blockquote.setAttribute("data-instgrm-permalink", embed.dataset.postUrl);
+                        blockquote.setAttribute("data-instgrm-version", "14");
+                    } else {
+                        blockquote.className = "twitter-tweet";
+                        blockquote.setAttribute("data-lang", "tr");
+                        blockquote.setAttribute("data-dnt", "true");
+                        blockquote.setAttribute("data-conversation", "none");
+                    }
+                    embed.replaceChildren(blockquote);
+                    embed.dataset.initialized = "true";
+                });
+                if (provider === "instagram") window.instgrm.Embeds.process();
+                else window.twttr.widgets.load(feed);
+            }).catch(() => {
+                // Keep the original post link if the platform is unavailable.
+            });
+        });
+    };
     const selectTab = (tab) => {
         tabs.forEach((item) => {
             const selected = item === tab;
@@ -311,6 +373,7 @@ document.querySelectorAll("[data-slider]").forEach((slider) => {
             item.tabIndex = selected ? 0 : -1;
             document.getElementById(item.getAttribute("aria-controls")).hidden = !selected;
         });
+        loadEmbeds(document.getElementById(tab.getAttribute("aria-controls")));
     };
     const close = (restoreFocus = false) => {
         panel.hidden = true;
@@ -323,7 +386,9 @@ document.querySelectorAll("[data-slider]").forEach((slider) => {
         panel.hidden = false;
         launcher.setAttribute("aria-expanded", "true");
         launcher.setAttribute("aria-label", "Sosyal medya panelini kapat");
-        tabs.find((tab) => tab.getAttribute("aria-selected") === "true")?.focus();
+        const activeTab = tabs.find((tab) => tab.getAttribute("aria-selected") === "true");
+        activeTab?.focus();
+        if (activeTab) loadEmbeds(document.getElementById(activeTab.getAttribute("aria-controls")));
     });
     closeButton?.addEventListener("click", () => close(true));
     document.addEventListener("keydown", (event) => {
