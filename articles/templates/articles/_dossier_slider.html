@@ -1,0 +1,98 @@
+    {% if featured %}
+        <section class="featured-slider"
+                 data-slider
+                 data-autoplay="6000"
+                 aria-label="Öne çıkan dosyalar"
+                 aria-roledescription="karusel">
+
+            <div class="slider-track" aria-live="off">
+                {% for dossier in featured %}
+                    <article class="hero slide"
+                             data-slide
+                             role="group"
+                             aria-roledescription="slayt"
+                             aria-label="{{ forloop.counter }} / {{ featured|length }}"
+                             {% if not forloop.first %}hidden{% endif %}>
+
+                        {% if dossier.cover %}
+                            <img class="hero-image"
+                                 src="{{ dossier.cover.url }}"
+                                 alt="{{ dossier.title }}"
+                                 {% if forloop.first %}fetchpriority="high"{% else %}loading="lazy"{% endif %}>
+                        {% else %}
+                            <div class="hero-placeholder" aria-hidden="true"></div>
+                        {% endif %}
+
+                        <div class="hero-overlay" aria-hidden="true"></div>
+
+                        <div class="hero-content">
+                            <span class="eyebrow">DOSYALAR</span>
+                            <h2>{{ dossier.title }}</h2>
+
+                            {% if dossier.summary %}
+                                <p>{{ dossier.summary|truncatechars:220 }}</p>
+                            {% endif %}
+
+                            <div class="hero-meta">
+                                <span>{{ dossier.published_article_count }} yazı</span>
+                                {% if dossier.published_at %}
+                                    <time datetime="{{ dossier.published_at|date:'c' }}">
+                                        {{ dossier.published_at|date:"j F Y" }}
+                                    </time>
+                                {% endif %}
+                            </div>
+
+                            <a class="read-link"
+                               href="{% url 'articles:dossier_detail' dossier.slug %}">
+                                Dosyayı keşfet <span aria-hidden="true">→</span>
+                            </a>
+                        </div>
+                    </article>
+                {% endfor %}
+            </div>
+
+            {% if featured|length > 1 %}
+                <div class="slider-toolbar">
+                    <div class="slider-arrows">
+                        <button type="button" data-prev aria-label="Önceki manşet">←</button>
+                        <button type="button" data-next aria-label="Sonraki manşet">→</button>
+                    </div>
+
+                    <div class="slider-dots" aria-label="Manşet seçimi">
+                        {% for dossier in featured %}
+                            <button type="button"
+                                    data-dot
+                                    data-slide-to="{{ forloop.counter0 }}"
+                                    aria-label="{{ forloop.counter }}. manşete git"
+                                    aria-current="{% if forloop.first %}true{% else %}false{% endif %}"></button>
+                        {% endfor %}
+                    </div>
+
+                    <div class="slider-status">
+                        <span data-counter aria-live="polite" aria-atomic="true">
+                            1 / {{ featured|length }}
+                        </span>
+                        <button type="button" data-pause aria-label="Otomatik geçişi durdur">
+                            <span data-pause-icon aria-hidden="true">Ⅱ</span>
+                        </button>
+                    </div>
+                </div>
+            {% endif %}
+        </section>
+    {% else %}
+        <section class="featured-slider" aria-label="Dosyalar">
+            <article class="hero slider-empty">
+                <div class="hero-placeholder slider-empty-art" aria-hidden="true">
+                    <span>Başka Medya.</span>
+                </div>
+                <div class="hero-overlay" aria-hidden="true"></div>
+                <div class="hero-content">
+                    <span class="eyebrow">DOSYALAR</span>
+                    <h2>Dosyalar burada yer alacak.</h2>
+                    <p>Henüz yayımlanmış dosya bulunmuyor.</p>
+                </div>
+            </article>
+            <div class="slider-toolbar slider-empty-status">Yeni dosyalar yayımlandığında burada yer alacak.</div>
+        </section>
+    {% endif %}
+

@@ -298,3 +298,32 @@ class ArticleWrappingTests(TestCase):
         html = str(article.formatted_content)
         self.assertIn('<p>Bir yazı metni.</p>', html)
         self.assertIn('<p>İkinci paragraf.</p>', html)
+
+
+class DossierSliderTests(TestCase):
+    def test_slider_limits_to_five_public_dossiers_and_prioritizes_featured(self):
+        for index in range(7):
+            Dossier.objects.create(title=f"Dosya {index}", slug=f"dosya-{index}",
+                                   status="published", order=index, cover=f"dossiers/{index}.jpg")
+        selected = Dossier.objects.create(title="Öne çıkan", slug="one-cikan", status="published", is_featured=True)
+        Dossier.objects.create(title="Gizli dosya", slug="gizli-dosya")
+        Dossier.objects.create(title="Gelecek dosya", slug="gelecek-dosya", status="published",
+                               published_at=timezone.now() + timedelta(days=1))
+        response = self.client.get(reverse("articles:dossier_list"))
+        self.assertEqual(len(response.context["featured"]), 5)
+        self.assertEqual(response.context["featured"][0].pk, selected.pk)
+        self.assertContains(response, "data-slide\n", count=5)
+        self.assertContains(response, "data-next")
+        self.assertContains(response, reverse("articles:dossier_detail", args=[selected.slug]))
+        self.assertNotContains(response, "Gizli dosya")
+        self.assertNotContains(response, "Gelecek dosya")
+
+    def test_empty_and_single_dossier_states(self):
+        response = self.client.get(reverse("articles:dossier_list"))
+        self.assertContains(response, "Dosyalar burada yer alacak.")
+        self.assertNotContains(response, "data-next")
+        Dossier.objects.create(title="Tek dosya", slug="tek-dosya", status="published")
+        response = self.client.get(reverse("articles:dossier_list"))
+        self.assertContains(response, "data-slider")
+        self.assertContains(response, "hero-placeholder")
+        self.assertNotContains(response, "data-next")

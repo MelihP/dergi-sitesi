@@ -118,6 +118,7 @@ def home(request):
 
 def dossier_list(request):
     dossiers = published_dossiers()
+    featured = list(dossiers.order_by("-is_featured", "order", "-published_at", "-id")[:5])
 
     paginator = Paginator(
         dossiers,
@@ -133,6 +134,7 @@ def dossier_list(request):
         "articles/dossier_list.html",
         {
             "page_obj": page_obj,
+            "featured": featured,
         },
     )
 
